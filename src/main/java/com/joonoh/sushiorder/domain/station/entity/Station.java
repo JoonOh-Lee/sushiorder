@@ -39,6 +39,10 @@ public class Station extends BaseTimeEntity {
         this.sortOrder = sortOrder;
     }
 
+    public void activate() {
+        this.active = true;
+    }
+
     public void deactivate() {
         this.active = false;
     }

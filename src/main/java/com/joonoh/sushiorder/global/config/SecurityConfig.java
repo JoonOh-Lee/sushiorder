@@ -16,6 +16,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/api/v1/station/**").authenticated()  // 직원 로그인은 필요, ADMIN까진 아님
                     .requestMatchers("/api/v1/menu/**").permitAll()  // 메서드 무관, 경로로만 판단
                     .anyRequest().authenticated()
             )

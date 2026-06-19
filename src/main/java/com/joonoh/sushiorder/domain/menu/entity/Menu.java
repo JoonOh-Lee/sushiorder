@@ -119,4 +119,13 @@ public class Menu extends BaseTimeEntity {
         this.active = true;
     }
 
+    // 메뉴 정보 수정
+    public void updateInfo(String name, String description, MenuCategory category, String imageUrl) {
+        this.name = name;
+        this.description = description;
+        if (category != null) {
+            this.category = category;
+        }
+        this.imageUrl = imageUrl;
+    }
 }

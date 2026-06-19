@@ -6,6 +6,7 @@ import com.joonoh.sushiorder.domain.menu.entity.MenuCategory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 import static com.joonoh.sushiorder.domain.menu.entity.QMenu.menu;
 
 @RequiredArgsConstructor
+@Slf4j
 public class MenuRepositoryImpl implements MenuRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;

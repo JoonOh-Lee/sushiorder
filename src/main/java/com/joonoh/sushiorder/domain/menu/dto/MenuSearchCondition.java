@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MenuSearchCondition {
-   private MenuCategory menuCategory;
+   private MenuCategory category;
    private String keyword;
    private Long stationId;
    private Boolean activeOnly;

@@ -23,7 +23,7 @@ public class MenuRepositoryImpl implements MenuRepositoryCustom{
         return queryFactory
                 .selectFrom(menu)
                 .where(
-                        categoryEq(condition.getMenuCategory()),
+                        categoryEq(condition.geCategory()),
                         keywordContains(condition.getKeyword()),
                         stationIdEq(condition.getStationId()),
                         activeEq(condition.getActiveOnly())

@@ -71,8 +71,6 @@ class StockConcurrencyTest {
                     startLatch.await();
 
                     PlaceOrderRequest req = new PlaceOrderRequest();
-                    setField(req, "tableId", (long) userIdx);
-                    setField(req, "sessionId", (long) userIdx);
                     setField(req, "idempotencyKey", UUID.randomUUID().toString());
 
                     OrderItemRequest item = new OrderItemRequest();
@@ -80,7 +78,7 @@ class StockConcurrencyTest {
                     setField(item, "quantity", 1);
                     setField(req, "items", List.of(item));
 
-                    var orderResponse = orderService.placeOrder(req);
+                    var orderResponse = orderService.placeOrder((long) userIdx, (long) userIdx, req);
                     orderService.confirmOrder(orderResponse.getId());
                     successCount.incrementAndGet();
                 } catch (Exception e) {

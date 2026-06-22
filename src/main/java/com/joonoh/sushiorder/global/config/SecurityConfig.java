@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/station/**").authenticated()
                         .requestMatchers("/api/v1/menu/**").permitAll()
+                        .requestMatchers("/api/v1/order/**").permitAll()  // TODO: QR 세션 토큰 검증으로 교체
                         .anyRequest().authenticated()
                 );
             // JWT 필터 등 추가.

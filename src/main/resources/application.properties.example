@@ -7,3 +7,7 @@ spring.jpa.hibernate.ddl-auto=create
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
 spring.sql.init.mode=always
 spring.jpa.defer-datasource-initialization=true
+
+# Staff JWT - generate your own secret (32+ bytes), never commit the real value
+jwt.secret=changeme-replace-with-a-long-random-base64-secret
+jwt.expiration-ms=43200000

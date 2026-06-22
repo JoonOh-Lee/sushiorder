@@ -5,6 +5,7 @@ import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.session.exception.InvalidSessionTokenException;
 import com.joonoh.sushiorder.domain.session.exception.TableSessionNotFoundException;
+import com.joonoh.sushiorder.domain.staff.exception.InvalidCredentialsException;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
 import com.joonoh.sushiorder.global.common.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -71,6 +72,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidSessionTokenException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidSessionToken(InvalidSessionTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(InvalidCredentialsException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.fail(e.getMessage()));
     }

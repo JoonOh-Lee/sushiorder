@@ -50,3 +50,9 @@ INSERT INTO menu (name, description, price, category, image_url, stock_count, li
 INSERT INTO menu (name, description, price, category, image_url, stock_count, like_count, dislike_count, is_active, station_id, version, created_at, updated_at) VALUES
     ('모찌 아이스크림', '오늘의 한정 디저트', 3000, 'DESSERT', NULL, 10, 0, 0, true,
      (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW());
+
+-- ============================================
+-- 3. 직원(Staff) 시드 — 로컬 개발용 admin 계정 (admin / admin1234)
+-- ============================================
+INSERT INTO staff (username, password, role, created_at, updated_at) VALUES
+    ('admin', '$2a$10$dkfi6Vcq77YzbrGX42Cvd.LVr4OzdHl0ijKnFIsg0OYcFkH79mZGG', 'ADMIN', NOW(), NOW());

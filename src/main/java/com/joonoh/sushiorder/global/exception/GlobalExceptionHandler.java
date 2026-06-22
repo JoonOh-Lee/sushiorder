@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.global.exception;
 
 import com.joonoh.sushiorder.domain.menu.exception.MenuNotFoundException;
+import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
 import com.joonoh.sushiorder.global.common.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -47,4 +48,9 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
+    @ExceptionHandler(OrderNotFoundException.class)
+    public  ResponseEntity<ApiResponse<Void>> handleStationNotFound(OrderNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
 }

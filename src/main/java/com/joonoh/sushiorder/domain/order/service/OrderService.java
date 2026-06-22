@@ -33,11 +33,13 @@ public class OrderService {
     /**
      * 주문 접수 (손님 → PENDING 상태로 저장)
      *
+     * tableId/sessionId는 SessionTokenInterceptor가 QR 토큰으로 검증해 넘겨준 값만 사용 —
+     * 클라이언트가 body로 보낸 값을 신뢰하지 않는다 (OrderController 참고).
      * 이 시점에는 재고 차감 안 함. 직원이 confirm()해야 실제로 차감.
      * 같은 idempotencyKey로 재요청이 들어오면 기존 주문 그대로 반환.
      */
     @Transactional
-    public OrderResponse placeOrder(PlaceOrderRequest request) {
+    public OrderResponse placeOrder(Long tableId, Long sessionId, PlaceOrderRequest request) {
         // 1. Idempotency 체크 — 중복 요청이면 기존 주문 반환
         return orderRepository.findByIdempotencyKey(request.getIdempotencyKey())
                 .map(existing -> {
@@ -45,13 +47,13 @@ public class OrderService {
                             request.getIdempotencyKey(), existing.getId());
                     return OrderResponse.from(existing);
                 })
-                .orElseGet(() -> createNewOrder(request));
+                .orElseGet(() -> createNewOrder(tableId, sessionId, request));
     }
 
-    private OrderResponse createNewOrder(PlaceOrderRequest request) {
+    private OrderResponse createNewOrder(Long tableId, Long sessionId, PlaceOrderRequest request) {
         Order order = Order.builder()
-                .tableId(request.getTableId())
-                .sessionId(request.getSessionId())
+                .tableId(tableId)
+                .sessionId(sessionId)
                 .idempotencyKey(request.getIdempotencyKey())
                 .build();
 
@@ -160,8 +162,13 @@ public class OrderService {
 
     // ===== 조회 메서드 =====
 
-    public OrderResponse getOrder(Long orderId) {
-        return OrderResponse.from(findOrderOrThrow(orderId));
+    /** 손님 본인 주문 조회 — 토큰에서 derive된 sessionId와 다르면 존재 자체를 숨긴다 */
+    public OrderResponse getOrder(Long orderId, Long sessionId) {
+        Order order = findOrderOrThrow(orderId);
+        if (!order.getSessionId().equals(sessionId)) {
+            throw new OrderNotFoundException(orderId);
+        }
+        return OrderResponse.from(order);
     }
 
     public List<OrderResponse> getActiveOrdersByTableId(Long tableId) {

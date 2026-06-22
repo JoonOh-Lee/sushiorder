@@ -2,6 +2,9 @@ package com.joonoh.sushiorder.global.exception;
 
 import com.joonoh.sushiorder.domain.menu.exception.MenuNotFoundException;
 import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
+import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
+import com.joonoh.sushiorder.domain.session.exception.InvalidSessionTokenException;
+import com.joonoh.sushiorder.domain.session.exception.TableSessionNotFoundException;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
 import com.joonoh.sushiorder.global.common.ApiResponse;
 import org.springframework.http.HttpStatus;
@@ -51,6 +54,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OrderNotFoundException.class)
     public  ResponseEntity<ApiResponse<Void>> handleStationNotFound(OrderNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(RestaurantTableNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRestaurantTableNotFound(RestaurantTableNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(TableSessionNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTableSessionNotFound(TableSessionNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidSessionTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidSessionToken(InvalidSessionTokenException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.fail(e.getMessage()));
     }
 }

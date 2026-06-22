@@ -28,7 +28,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/station/**").authenticated()
                         .requestMatchers("/api/v1/menu/**").permitAll()
-                        .requestMatchers("/api/v1/order/**").permitAll()  // TODO: QR 세션 토큰 검증으로 교체
+                        .requestMatchers("/api/v1/order/**").permitAll()  // SessionTokenInterceptor가 MVC 계층에서 QR 토큰 검증
+                        .requestMatchers("/api/v1/session/**").permitAll()  // 세션 생성/본인 세션 조회는 토큰 발급 전이라 인증 불필요
                         .anyRequest().authenticated()
                 );
             // JWT 필터 등 추가.

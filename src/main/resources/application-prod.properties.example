@@ -1,5 +1,10 @@
 spring.application.name=sushiorder
 
+# 운영은 리버스 프록시(nginx/ALB 등) 뒤에 떠 있다고 가정 — X-Forwarded-* 헤더를 신뢰해서
+# ServletUriComponentsBuilder가 내부 주소(예: http://10.0.x.x:8080) 대신 외부에 노출된
+# 실제 도메인/스킴으로 절대 URL(예: 메뉴 이미지 imageUrl)을 만들도록 한다.
+server.forward-headers-strategy=framework
+
 spring.datasource.url=${DB_URL}
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}

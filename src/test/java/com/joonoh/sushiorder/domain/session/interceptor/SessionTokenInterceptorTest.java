@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.session.interceptor;
 
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
+import com.joonoh.sushiorder.domain.restauranttable.entity.SeatType;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
 import com.joonoh.sushiorder.domain.session.dto.TableSessionResponse;
 import com.joonoh.sushiorder.domain.session.exception.InvalidSessionTokenException;
@@ -31,6 +32,7 @@ class SessionTokenInterceptorTest {
     @BeforeEach
     void setUp() {
         RestaurantTable table = RestaurantTable.builder()
+                .seatType(SeatType.TABLE)
                 .tableNumber(9101)
                 .seatCount(4)
                 .build();

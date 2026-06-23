@@ -71,30 +71,30 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
 
 -- ============================================
 -- 4. 손님 좌석(RestaurantTable) 시드
---    1~20번: 다찌석(카운터, 1인용) / 21~23번: 테이블 1~3 (4인용)
---    table_number는 전역 unique라 다찌/테이블 번호가 겹치지 않게 이어서 매김
+--    COUNTER(다찌석, 1인용) 1~20번 / TABLE(테이블, 4인용) 1~3번
+--    table_number는 seat_type별로 따로 매겨진다 (seat_type+table_number 복합 unique)
 -- ============================================
-INSERT INTO restaurant_table (table_number, seat_count, status, created_at, updated_at) VALUES
-    (1, 1, 'EMPTY', NOW(), NOW()),
-    (2, 1, 'EMPTY', NOW(), NOW()),
-    (3, 1, 'EMPTY', NOW(), NOW()),
-    (4, 1, 'EMPTY', NOW(), NOW()),
-    (5, 1, 'EMPTY', NOW(), NOW()),
-    (6, 1, 'EMPTY', NOW(), NOW()),
-    (7, 1, 'EMPTY', NOW(), NOW()),
-    (8, 1, 'EMPTY', NOW(), NOW()),
-    (9, 1, 'EMPTY', NOW(), NOW()),
-    (10, 1, 'EMPTY', NOW(), NOW()),
-    (11, 1, 'EMPTY', NOW(), NOW()),
-    (12, 1, 'EMPTY', NOW(), NOW()),
-    (13, 1, 'EMPTY', NOW(), NOW()),
-    (14, 1, 'EMPTY', NOW(), NOW()),
-    (15, 1, 'EMPTY', NOW(), NOW()),
-    (16, 1, 'EMPTY', NOW(), NOW()),
-    (17, 1, 'EMPTY', NOW(), NOW()),
-    (18, 1, 'EMPTY', NOW(), NOW()),
-    (19, 1, 'EMPTY', NOW(), NOW()),
-    (20, 1, 'EMPTY', NOW(), NOW()),
-    (21, 4, 'EMPTY', NOW(), NOW()),
-    (22, 4, 'EMPTY', NOW(), NOW()),
-    (23, 4, 'EMPTY', NOW(), NOW());
+INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, created_at, updated_at) VALUES
+    ('COUNTER', 1, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 2, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 3, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 4, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 5, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 6, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 7, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 8, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 9, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 10, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 11, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 12, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 13, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 14, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 15, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 16, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 17, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 18, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 19, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 20, 1, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 1, 4, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 2, 4, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 3, 4, 'EMPTY', NOW(), NOW());

@@ -175,11 +175,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/menu?category=SUSHI&keyword=&stationId={{stationId}}&activeOnly=true",
+              "raw": "{{baseUrl}}/api/v1/menu?category=FRESH_SUSHI&keyword=&stationId={{stationId}}&activeOnly=true",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "menu"],
               "query": [
-                { "key": "category", "value": "SUSHI", "disabled": false },
+                { "key": "category", "value": "FRESH_SUSHI", "disabled": false },
                 { "key": "keyword", "value": "", "disabled": true },
                 { "key": "stationId", "value": "{{stationId}}", "disabled": true },
                 { "key": "activeOnly", "value": "true", "disabled": false }
@@ -237,7 +237,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"연어초밥\",\n  \"description\": \"신선한 연어초밥 2pcs\",\n  \"price\": 4500,\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/salmon.jpg\",\n  \"stockCount\": 50,\n  \"stationId\": {{stationId}}\n}"
+              "raw": "{\n  \"name\": \"연어초밥\",\n  \"description\": \"신선한 연어초밥 2pcs\",\n  \"price\": 4500,\n  \"category\": \"FRESH_SUSHI\",\n  \"imageUrl\": \"https://example.com/salmon.jpg\",\n  \"stockCount\": 50,\n  \"stationId\": {{stationId}}\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/menu", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu"] }
           }
@@ -249,7 +249,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"광어초밥\",\n  \"description\": \"신선한 광어초밥 2pcs\",\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/flounder.jpg\"\n}"
+              "raw": "{\n  \"name\": \"광어초밥\",\n  \"description\": \"신선한 광어초밥 2pcs\",\n  \"category\": \"FRESH_SUSHI\",\n  \"imageUrl\": \"https://example.com/flounder.jpg\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}"] }
           }
@@ -397,6 +397,61 @@
       ]
     },
     {
+      "name": "Call",
+      "item": [
+        {
+          "name": "Call Staff (Water Refill / Inquiry / Other)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Session-Token", "value": "{{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"WATER_REFILL\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "call"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('callId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Staff Call",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Requested Calls",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "call"] }
+          }
+        },
+        {
+          "name": "Resolve Call",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/call/{{callId}}/resolve", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "call", "{{callId}}", "resolve"] }
+          }
+        }
+      ]
+    },
+    {
       "name": "Table (Admin)",
       "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
       "item": [
@@ -519,6 +574,102 @@
             "method": "PATCH",
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/v1/admin/session/{{sessionId}}/close", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "session", "{{sessionId}}", "close"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice",
+      "item": [
+        {
+          "name": "List Active Notices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "notice"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List All Notices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice"] }
+          }
+        },
+        {
+          "name": "Create Notice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"영업시간 안내\",\n  \"content\": \"영업시간은 매일 11:30~22:00입니다.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('noticeId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"영업시간 변경 안내\",\n  \"content\": \"영업시간이 11:00~21:00으로 변경되었습니다.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}"] }
+          }
+        },
+        {
+          "name": "Pin Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/pin", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "pin"] }
+          }
+        },
+        {
+          "name": "Unpin Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/unpin", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "unpin"] }
+          }
+        },
+        {
+          "name": "Activate Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "deactivate"] }
           }
         }
       ]

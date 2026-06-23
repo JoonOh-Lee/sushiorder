@@ -39,7 +39,7 @@ class StockConcurrencyTest {
                 .name("동시성 테스트용 우니초밥")
                 .description("재고 5")
                 .price(8000)
-                .category(MenuCategory.SUSHI)
+                .category(MenuCategory.PREMIUM_SUSHI)
                 .stockCount(5)
                 .stationId(1L)
                 .build();

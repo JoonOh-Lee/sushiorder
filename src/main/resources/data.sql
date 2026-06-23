@@ -68,3 +68,33 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
      (SELECT id FROM station WHERE name = '활어다이'), NOW(), NOW()),
     ('staff_back', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
      (SELECT id FROM station WHERE name = '뒷주방'), NOW(), NOW());
+
+-- ============================================
+-- 4. 손님 좌석(RestaurantTable) 시드
+--    COUNTER(다찌석, 1인용) 1~20번 / TABLE(테이블, 4인용) 1~3번
+--    table_number는 seat_type별로 따로 매겨진다 (seat_type+table_number 복합 unique)
+-- ============================================
+INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, created_at, updated_at) VALUES
+    ('COUNTER', 1, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 2, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 3, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 4, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 5, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 6, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 7, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 8, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 9, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 10, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 11, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 12, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 13, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 14, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 15, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 16, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 17, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 18, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 19, 1, 'EMPTY', NOW(), NOW()),
+    ('COUNTER', 20, 1, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 1, 4, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 2, 4, 'EMPTY', NOW(), NOW()),
+    ('TABLE', 3, 4, 'EMPTY', NOW(), NOW());

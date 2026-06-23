@@ -10,14 +10,19 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "restaurant_table")
+@Table(name = "restaurant_table",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"seat_type", "table_number"}))
 public class RestaurantTable extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "table_number", nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_type", nullable = false, length = 20)
+    private SeatType seatType;
+
+    @Column(name = "table_number", nullable = false)
     private int tableNumber;
 
     @Column(name = "seat_count", nullable = false)
@@ -28,13 +33,17 @@ public class RestaurantTable extends BaseTimeEntity {
     private TableStatus status;
 
     @Builder
-    private RestaurantTable(int tableNumber, int seatCount) {
+    private RestaurantTable(SeatType seatType, int tableNumber, int seatCount) {
+        if (seatType == null) {
+            throw new IllegalArgumentException("좌석 타입은 필수입니다.");
+        }
         if (tableNumber <= 0) {
             throw new IllegalArgumentException("테이블 번호는 1 이상이어야 합니다.");
         }
         if (seatCount <= 0) {
             throw new IllegalArgumentException("좌석 수는 1 이상이어야 합니다.");
         }
+        this.seatType = seatType;
         this.tableNumber = tableNumber;
         this.seatCount = seatCount;
         this.status = TableStatus.EMPTY;

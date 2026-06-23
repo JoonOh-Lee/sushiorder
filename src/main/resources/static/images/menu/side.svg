@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#FBE9E3"/>
+  <circle cx="200" cy="155" r="75" fill="#FFFFFF" stroke="#E07A5F" stroke-width="3"/>
+  <path d="M150 140 q50 -40 100 0 q-10 50 -50 55 q-40 -5 -50 -55 z" fill="#E07A5F"/>
+  <text x="200" y="240" font-family="sans-serif" font-size="28" font-weight="bold" fill="#9C4A33" text-anchor="middle">사이드 SIDE</text>
+</svg>

@@ -55,6 +55,8 @@ class TableSessionServiceTest {
         assertThat(response.getStatus()).isEqualTo(SessionStatus.ACTIVE);
         assertThat(response.getTableId()).isEqualTo(tableId);
         assertThat(response.getSessionToken()).isNotBlank();
+        assertThat(response.getSeatType()).isEqualTo(SeatType.TABLE);
+        assertThat(response.getTableNumber()).isEqualTo(9001);
 
         RestaurantTable table = restaurantTableRepository.findById(tableId).orElseThrow();
         assertThat(table.getStatus()).isEqualTo(TableStatus.OCCUPIED);
@@ -142,6 +144,8 @@ class TableSessionServiceTest {
         TableSessionResponse found = tableSessionService.getSessionByToken(created.getSessionToken());
 
         assertThat(found.getId()).isEqualTo(created.getId());
+        assertThat(found.getSeatType()).isEqualTo(SeatType.TABLE);
+        assertThat(found.getTableNumber()).isEqualTo(9001);
     }
 
     @Test

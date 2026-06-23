@@ -1,0 +1,527 @@
+{
+  "info": {
+    "name": "sushiorder API",
+    "description": "회전초밥 QR 주문/관리 시스템 API. import 후 sushiorder-local 환경을 선택하세요.\n\n인증 체계:\n- 직원(Staff/Admin): /api/v1/auth/login 으로 로그인 -> 받은 token을 Authorization: Bearer {token} 헤더로 사용\n- 손님(QR 세션): /api/v1/session 으로 세션 생성 -> 받은 sessionToken을 X-Session-Token 헤더로 사용\n\nAuth > Login(Staff), Login(Admin), Session > Create Session 요청은 응답을 받으면 자동으로 환경변수(jwt/adminJwt/sessionToken)에 저장하는 스크립트가 포함되어 있습니다.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Staff)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{staffUsername}}\",\n  \"password\": \"{{staffPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.token) {",
+                  "    pm.environment.set('jwt', res.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "v1", "auth", "login"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.token) {",
+                  "    pm.environment.set('adminJwt', res.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Staff",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "Get My Info (me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/me", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "me"] }
+          }
+        },
+        {
+          "name": "Assign My Station",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stationId\": {{stationId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/me/station", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "me", "station"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Station",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Active Stations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/station", "host": ["{{baseUrl}}"], "path": ["api", "v1", "station"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Station (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List All Stations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station"] }
+          }
+        },
+        {
+          "name": "Create Station",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"초밥 스테이션\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station"] }
+          }
+        },
+        {
+          "name": "Rename Station",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"롤 스테이션\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station/{{stationId}}/name", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station", "{{stationId}}", "name"] }
+          }
+        },
+        {
+          "name": "Reorder Stations",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    { \"stationId\": 1, \"sortOrder\": 1 },\n    { \"stationId\": 2, \"sortOrder\": 2 }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station/order", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station", "order"] }
+          }
+        },
+        {
+          "name": "Activate Station",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station/{{stationId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station", "{{stationId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Station",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/station/{{stationId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "station", "{{stationId}}", "deactivate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu",
+      "item": [
+        {
+          "name": "List Menus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menu?category=SUSHI&keyword=&stationId={{stationId}}&activeOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menu"],
+              "query": [
+                { "key": "category", "value": "SUSHI", "disabled": false },
+                { "key": "keyword", "value": "", "disabled": true },
+                { "key": "stationId", "value": "{{stationId}}", "disabled": true },
+                { "key": "activeOnly", "value": "true", "disabled": false }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Menu Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/menu/{{menuId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "menu", "{{menuId}}"] }
+          }
+        },
+        {
+          "name": "Like Menu",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/menu/{{menuId}}/like", "host": ["{{baseUrl}}"], "path": ["api", "v1", "menu", "{{menuId}}", "like"] }
+          }
+        },
+        {
+          "name": "Dislike Menu",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/menu/{{menuId}}/dislike", "host": ["{{baseUrl}}"], "path": ["api", "v1", "menu", "{{menuId}}", "dislike"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Low Stock Menus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/menu/low-stock?threshold=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "menu", "low-stock"],
+              "query": [{ "key": "threshold", "value": "5" }]
+            }
+          }
+        },
+        {
+          "name": "Create Menu",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"연어초밥\",\n  \"description\": \"신선한 연어초밥 2pcs\",\n  \"price\": 4500,\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/salmon.jpg\",\n  \"stockCount\": 50,\n  \"stationId\": {{stationId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu"] }
+          }
+        },
+        {
+          "name": "Update Menu",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"광어초밥\",\n  \"description\": \"신선한 광어초밥 2pcs\",\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/flounder.jpg\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}"] }
+          }
+        },
+        {
+          "name": "Change Price",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 5000\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/price", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "price"] }
+          }
+        },
+        {
+          "name": "Restock Menu",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 20\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/restock", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "restock"] }
+          }
+        },
+        {
+          "name": "Activate Menu",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Menu",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "deactivate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Session-Token", "value": "{{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idempotencyKey\": \"{{$guid}}\",\n  \"items\": [\n    { \"menuId\": {{menuId}}, \"quantity\": 2 }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/order", "host": ["{{baseUrl}}"], "path": ["api", "v1", "order"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('orderId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Session-Token", "value": "{{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/order/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "order", "{{orderId}}"] }
+          }
+        },
+        {
+          "name": "List My Session Orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Session-Token", "value": "{{sessionToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/v1/order/session", "host": ["{{baseUrl}}"], "path": ["api", "v1", "order", "session"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Active Orders By Table",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/table/{{tableId}}/active", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "table", "{{tableId}}", "active"] }
+          }
+        },
+        {
+          "name": "List Orders By Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/order?status=PENDING",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "order"],
+              "query": [{ "key": "status", "value": "PENDING" }]
+            }
+          }
+        },
+        {
+          "name": "Confirm Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "confirm"] }
+          }
+        },
+        {
+          "name": "Complete Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "complete"] }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Table (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List Tables",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table"] }
+          }
+        },
+        {
+          "name": "Get Table Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}"] }
+          }
+        },
+        {
+          "name": "Create Table",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tableNumber\": 1,\n  \"seatCount\": 4\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table"] }
+          }
+        },
+        {
+          "name": "Occupy Table",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/occupy", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "occupy"] }
+          }
+        },
+        {
+          "name": "Release Table",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/release", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "release"] }
+          }
+        },
+        {
+          "name": "Reserve Table",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/reserve", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "reserve"] }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/cancel-reservation", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "cancel-reservation"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session",
+      "item": [
+        {
+          "name": "Create Session (QR Scan)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tableId\": {{tableId}}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/session", "host": ["{{baseUrl}}"], "path": ["api", "v1", "session"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data) {",
+                  "    if (res.data.sessionToken) pm.environment.set('sessionToken', res.data.sessionToken);",
+                  "    if (res.data.id) pm.environment.set('sessionId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Session By Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/session/{{sessionToken}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "session", "{{sessionToken}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Get Session By Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/session/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "session", "{{sessionId}}"] }
+          }
+        },
+        {
+          "name": "Close Session",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/session/{{sessionId}}/close", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "session", "{{sessionId}}", "close"] }
+          }
+        }
+      ]
+    }
+  ]
+}

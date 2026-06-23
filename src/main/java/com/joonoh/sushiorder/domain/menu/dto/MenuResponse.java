@@ -14,6 +14,8 @@ public class MenuResponse {
     private int price;
     private MenuCategory category;
     private String imageUrl;
+    private String ingredients;
+    private String allergyInfo;
     private Integer stockCount;
     private boolean limitedStock;
     private int likeCount;
@@ -29,6 +31,8 @@ public class MenuResponse {
                 .price(menu.getPrice())
                 .category(menu.getCategory())
                 .imageUrl(menu.getImageUrl())
+                .ingredients(menu.getIngredients())
+                .allergyInfo(menu.getAllergyInfo())
                 .stockCount(menu.getStockCount())
                 .limitedStock(menu.isLimitedStock())
                 .likeCount(menu.getLikeCount())

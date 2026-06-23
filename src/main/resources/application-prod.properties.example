@@ -1,0 +1,14 @@
+spring.application.name=sushiorder
+
+spring.datasource.url=${DB_URL}
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+
+# local과 달리 스키마를 앱이 재생성하지 않는다 — 마이그레이션 도구 도입 전까지는 운영 DB 스키마를 수동/별도 스크립트로 관리
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDBDialect
+spring.sql.init.mode=never
+
+jwt.secret=${JWT_SECRET}
+jwt.expiration-ms=${JWT_EXPIRATION_MS:43200000}

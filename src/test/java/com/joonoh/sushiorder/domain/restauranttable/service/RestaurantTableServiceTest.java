@@ -2,6 +2,7 @@ package com.joonoh.sushiorder.domain.restauranttable.service;
 
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableCreateRequest;
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
+import com.joonoh.sushiorder.domain.restauranttable.entity.SeatType;
 import com.joonoh.sushiorder.domain.restauranttable.entity.TableStatus;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
@@ -33,28 +34,43 @@ class RestaurantTableServiceTest {
     @Test
     @DisplayName("테이블을 생성하면 EMPTY 상태로 시작한다")
     void createTable_startsEmpty() {
-        RestaurantTableResponse response = restaurantTableService.createTable(createRequest(8001, 4));
+        RestaurantTableResponse response = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8001, 4));
         tableId = response.getId();
 
         assertThat(response.getStatus()).isEqualTo(TableStatus.EMPTY);
+        assertThat(response.getSeatType()).isEqualTo(SeatType.TABLE);
         assertThat(response.getTableNumber()).isEqualTo(8001);
         assertThat(response.getSeatCount()).isEqualTo(4);
     }
 
     @Test
-    @DisplayName("이미 존재하는 테이블 번호로는 생성할 수 없다")
+    @DisplayName("같은 좌석 타입에서 이미 존재하는 테이블 번호로는 생성할 수 없다")
     void createTable_duplicateTableNumber_throws() {
-        RestaurantTableResponse response = restaurantTableService.createTable(createRequest(8002, 4));
+        RestaurantTableResponse response = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8002, 4));
         tableId = response.getId();
 
-        assertThatThrownBy(() -> restaurantTableService.createTable(createRequest(8002, 2)))
+        assertThatThrownBy(() -> restaurantTableService.createTable(createRequest(SeatType.TABLE, 8002, 2)))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("좌석 타입이 다르면 같은 테이블 번호도 생성할 수 있다")
+    void createTable_sameNumberDifferentSeatType_succeeds() {
+        RestaurantTableResponse tableResponse = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8006, 4));
+        tableId = tableResponse.getId();
+
+        RestaurantTableResponse counterResponse = restaurantTableService.createTable(createRequest(SeatType.COUNTER, 8006, 1));
+
+        assertThat(counterResponse.getSeatType()).isEqualTo(SeatType.COUNTER);
+        assertThat(counterResponse.getTableNumber()).isEqualTo(8006);
+
+        restaurantTableRepository.deleteById(counterResponse.getId());
     }
 
     @Test
     @DisplayName("occupy 후 release하면 다시 EMPTY로 돌아온다")
     void occupyThenRelease_changesStatus() {
-        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(8003, 4));
+        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8003, 4));
         tableId = created.getId();
 
         restaurantTableService.occupyTable(tableId);
@@ -67,7 +83,7 @@ class RestaurantTableServiceTest {
     @Test
     @DisplayName("이미 사용 중인 테이블은 다시 occupy할 수 없다")
     void occupyTable_alreadyOccupied_throws() {
-        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(8004, 4));
+        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8004, 4));
         tableId = created.getId();
         restaurantTableService.occupyTable(tableId);
 
@@ -78,7 +94,7 @@ class RestaurantTableServiceTest {
     @Test
     @DisplayName("reserve 후 cancelReservation하면 다시 EMPTY로 돌아온다")
     void reserveThenCancel_changesStatus() {
-        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(8005, 4));
+        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8005, 4));
         tableId = created.getId();
 
         restaurantTableService.reserveTable(tableId);
@@ -95,8 +111,9 @@ class RestaurantTableServiceTest {
                 .isInstanceOf(RestaurantTableNotFoundException.class);
     }
 
-    private RestaurantTableCreateRequest createRequest(int tableNumber, int seatCount) {
+    private RestaurantTableCreateRequest createRequest(SeatType seatType, int tableNumber, int seatCount) {
         RestaurantTableCreateRequest request = new RestaurantTableCreateRequest();
+        setField(request, "seatType", seatType);
         setField(request, "tableNumber", tableNumber);
         setField(request, "seatCount", seatCount);
         return request;

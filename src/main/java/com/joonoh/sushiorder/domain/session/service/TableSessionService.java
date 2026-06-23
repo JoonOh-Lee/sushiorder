@@ -50,7 +50,7 @@ public class TableSessionService {
         TableSession saved = tableSessionRepository.save(session);
 
         log.info("세션 생성 — sessionId={}, tableId={}", saved.getId(), tableId);
-        return TableSessionResponse.from(saved);
+        return TableSessionResponse.from(saved, table);
     }
 
     /** 직원 → 테이블 정리/퇴실 처리 */
@@ -58,10 +58,11 @@ public class TableSessionService {
     public TableSessionResponse closeSession(Long sessionId) {
         TableSession session = findSessionOrThrow(sessionId);
         session.close();
-        releaseTable(session.getTableId());
+        RestaurantTable table = findTableOrThrow(session.getTableId());
+        table.release();
 
         log.info("세션 종료 — sessionId={}, tableId={}", sessionId, session.getTableId());
-        return TableSessionResponse.from(session);
+        return TableSessionResponse.from(session, table);
     }
 
     /** 만료 스케줄러가 주기적으로 호출 — 기한이 지난 활성 세션을 일괄 만료 처리 */
@@ -84,12 +85,14 @@ public class TableSessionService {
     // ===== 조회 메서드 =====
 
     public TableSessionResponse getSession(Long sessionId) {
-        return TableSessionResponse.from(findSessionOrThrow(sessionId));
+        TableSession session = findSessionOrThrow(sessionId);
+        return TableSessionResponse.from(session, findTableOrThrow(session.getTableId()));
     }
 
     /** QR 인증 인터셉터가 토큰으로 세션을 조회할 때 사용. 유효성(isUsable) 판단은 호출 측 책임. */
     public TableSessionResponse getSessionByToken(String sessionToken) {
-        return TableSessionResponse.from(findSessionByTokenOrThrow(sessionToken));
+        TableSession session = findSessionByTokenOrThrow(sessionToken);
+        return TableSessionResponse.from(session, findTableOrThrow(session.getTableId()));
     }
 
     private TableSession findSessionOrThrow(Long sessionId) {

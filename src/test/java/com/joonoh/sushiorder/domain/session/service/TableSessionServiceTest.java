@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.session.service;
 
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
+import com.joonoh.sushiorder.domain.restauranttable.entity.SeatType;
 import com.joonoh.sushiorder.domain.restauranttable.entity.TableStatus;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
@@ -33,6 +34,7 @@ class TableSessionServiceTest {
     @BeforeEach
     void setUp() {
         RestaurantTable table = RestaurantTable.builder()
+                .seatType(SeatType.TABLE)
                 .tableNumber(9001)
                 .seatCount(4)
                 .build();
@@ -53,6 +55,8 @@ class TableSessionServiceTest {
         assertThat(response.getStatus()).isEqualTo(SessionStatus.ACTIVE);
         assertThat(response.getTableId()).isEqualTo(tableId);
         assertThat(response.getSessionToken()).isNotBlank();
+        assertThat(response.getSeatType()).isEqualTo(SeatType.TABLE);
+        assertThat(response.getTableNumber()).isEqualTo(9001);
 
         RestaurantTable table = restaurantTableRepository.findById(tableId).orElseThrow();
         assertThat(table.getStatus()).isEqualTo(TableStatus.OCCUPIED);
@@ -112,7 +116,7 @@ class TableSessionServiceTest {
         backdateExpiresAt(overdue.getId(), LocalDateTime.now().minusMinutes(1));
 
         RestaurantTable anotherTable = restaurantTableRepository.saveAndFlush(
-                RestaurantTable.builder().tableNumber(9002).seatCount(2).build());
+                RestaurantTable.builder().seatType(SeatType.TABLE).tableNumber(9002).seatCount(2).build());
         TableSessionResponse stillActive = tableSessionService.createSession(anotherTable.getId());
 
         try {
@@ -140,6 +144,8 @@ class TableSessionServiceTest {
         TableSessionResponse found = tableSessionService.getSessionByToken(created.getSessionToken());
 
         assertThat(found.getId()).isEqualTo(created.getId());
+        assertThat(found.getSeatType()).isEqualTo(SeatType.TABLE);
+        assertThat(found.getTableNumber()).isEqualTo(9001);
     }
 
     @Test

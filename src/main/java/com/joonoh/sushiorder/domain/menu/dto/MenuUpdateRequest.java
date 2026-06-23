@@ -17,4 +17,8 @@ public class MenuUpdateRequest {
     private MenuCategory category;
 
     private String imageUrl;
+
+    private String ingredients; // 원재료 정보
+
+    private String allergyInfo; // 알러지 유발 성분 정보
 }

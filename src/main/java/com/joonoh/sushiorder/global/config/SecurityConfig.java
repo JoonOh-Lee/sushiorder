@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/menu/**").permitAll()
                         .requestMatchers("/api/v1/order/**").permitAll()  // SessionTokenInterceptor가 MVC 계층에서 QR 토큰 검증
                         .requestMatchers("/api/v1/session/**").permitAll()  // 세션 생성/본인 세션 조회는 토큰 발급 전이라 인증 불필요
+                        .requestMatchers("/api/v1/call/**").permitAll()  // 손님 직원 호출 — SessionTokenInterceptor가 검증
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handling -> handling
@@ -72,7 +73,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // React 개발 서버
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173")); // React 개발 서버 (CRA: 3000, Vite: 5173)
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F3E9E7"/>
+  <circle cx="200" cy="155" r="55" fill="#F7D9D0" stroke="#C9ADA7" stroke-width="3"/>
+  <circle cx="180" cy="140" r="10" fill="#FFFFFF"/>
+  <circle cx="215" cy="160" r="8" fill="#FFFFFF"/>
+  <text x="200" y="240" font-family="sans-serif" font-size="28" font-weight="bold" fill="#7A5C56" text-anchor="middle">디저트 DESSERT</text>
+</svg>

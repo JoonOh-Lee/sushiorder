@@ -22,11 +22,13 @@ public class RestaurantTableService {
 
     @Transactional
     public RestaurantTableResponse createTable(RestaurantTableCreateRequest request) {
-        if (restaurantTableRepository.existsByTableNumber(request.getTableNumber())) {
-            throw new IllegalArgumentException("이미 존재하는 테이블 번호입니다. tableNumber=" + request.getTableNumber());
+        if (restaurantTableRepository.existsBySeatTypeAndTableNumber(request.getSeatType(), request.getTableNumber())) {
+            throw new IllegalArgumentException(
+                    "이미 존재하는 테이블 번호입니다. seatType=" + request.getSeatType() + ", tableNumber=" + request.getTableNumber());
         }
 
         RestaurantTable table = RestaurantTable.builder()
+                .seatType(request.getSeatType())
                 .tableNumber(request.getTableNumber())
                 .seatCount(request.getSeatCount())
                 .build();

@@ -23,6 +23,11 @@ public class Menu extends BaseTimeEntity {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(name = "ingredients", length = 500)
+    private String ingredients;
+    @Column(name = "allergy_info", length = 255)
+    private String allergyInfo;
+
     @Column(name="stock_count")
     private Integer stockCount;
     @Column(name="is_active", nullable = false)
@@ -44,12 +49,15 @@ public class Menu extends BaseTimeEntity {
 
     @Builder
     private Menu(String name, String description, int price,
-                 MenuCategory category, String imageUrl, Integer stockCount, Long stationId) {
+                 MenuCategory category, String imageUrl, String ingredients, String allergyInfo,
+                 Integer stockCount, Long stationId) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.category = category;
         this.imageUrl = imageUrl;
+        this.ingredients = ingredients;
+        this.allergyInfo = allergyInfo;
         this.stockCount = stockCount;
         this.likeCount = 0;
         this.dislikeCount = 0;
@@ -120,12 +128,15 @@ public class Menu extends BaseTimeEntity {
     }
 
     // 메뉴 정보 수정
-    public void updateInfo(String name, String description, MenuCategory category, String imageUrl) {
+    public void updateInfo(String name, String description, MenuCategory category, String imageUrl,
+                            String ingredients, String allergyInfo) {
         this.name = name;
         this.description = description;
         if (category != null) {
             this.category = category;
         }
         this.imageUrl = imageUrl;
+        this.ingredients = ingredients;
+        this.allergyInfo = allergyInfo;
     }
 }

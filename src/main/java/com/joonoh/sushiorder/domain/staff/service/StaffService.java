@@ -2,9 +2,13 @@ package com.joonoh.sushiorder.domain.staff.service;
 
 import com.joonoh.sushiorder.domain.staff.dto.LoginRequest;
 import com.joonoh.sushiorder.domain.staff.dto.LoginResponse;
+import com.joonoh.sushiorder.domain.staff.dto.StaffMeResponse;
 import com.joonoh.sushiorder.domain.staff.entity.Staff;
 import com.joonoh.sushiorder.domain.staff.exception.InvalidCredentialsException;
+import com.joonoh.sushiorder.domain.staff.exception.StaffNotFoundException;
 import com.joonoh.sushiorder.domain.staff.repository.StaffRepository;
+import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
+import com.joonoh.sushiorder.domain.station.repository.StationRepository;
 import com.joonoh.sushiorder.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class StaffService {
 
     private final StaffRepository staffRepository;
+    private final StationRepository stationRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -34,6 +39,29 @@ public class StaffService {
                 .token(token)
                 .username(staff.getUsername())
                 .role(staff.getRole())
+                .stationId(staff.getStationId())
                 .build();
+    }
+
+    public StaffMeResponse getMe(String username) {
+        return StaffMeResponse.from(findStaffOrThrow(username));
+    }
+
+    /** 출근할 때마다 바뀔 수 있는 자리를 직원 본인이 로그인 후 직접 지정 */
+    @Transactional
+    public StaffMeResponse assignStation(String username, Long stationId) {
+        Staff staff = findStaffOrThrow(username);
+
+        if (!stationRepository.existsById(stationId)) {
+            throw new StationNotFoundException(stationId);
+        }
+
+        staff.assignStation(stationId);
+        return StaffMeResponse.from(staff);
+    }
+
+    private Staff findStaffOrThrow(String username) {
+        return staffRepository.findByUsername(username)
+                .orElseThrow(() -> new StaffNotFoundException(username));
     }
 }

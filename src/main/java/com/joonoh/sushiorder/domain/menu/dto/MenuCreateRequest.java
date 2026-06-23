@@ -25,6 +25,10 @@ public class MenuCreateRequest {
 
     private String imageUrl;
 
+    private String ingredients; // 원재료 정보
+
+    private String allergyInfo; // 알러지 유발 성분 정보
+
     private Integer stockCount; // null = 무제한 메뉴
 
     private Long stationId;

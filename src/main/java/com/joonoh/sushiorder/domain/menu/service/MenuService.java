@@ -31,6 +31,8 @@ public class MenuService {
                 .price(request.getPrice())
                 .category(request.getCategory())
                 .imageUrl(request.getImageUrl())
+                .ingredients(request.getIngredients())
+                .allergyInfo(request.getAllergyInfo())
                 .stockCount(request.getStockCount())
                 .stationId(request.getStationId())
                 .build();
@@ -65,7 +67,8 @@ public class MenuService {
     @Transactional
     public MenuResponse updateMenu(Long id, MenuUpdateRequest request) {
         Menu menu = findMenuOrThrow(id);
-        menu.updateInfo(request.getName(), request.getDescription(), request.getCategory(), request.getImageUrl());
+        menu.updateInfo(request.getName(), request.getDescription(), request.getCategory(), request.getImageUrl(),
+                request.getIngredients(), request.getAllergyInfo());
         return MenuResponse.from(menu);
     }
 

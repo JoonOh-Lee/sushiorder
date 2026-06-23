@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/staff/**").authenticated()  // 본인 station 조회/지정 — 직원이면 누구나
                         .requestMatchers("/api/v1/station/**").authenticated()
                         .requestMatchers("/api/v1/menu/**").permitAll()
                         .requestMatchers("/api/v1/order/**").permitAll()  // SessionTokenInterceptor가 MVC 계층에서 QR 토큰 검증

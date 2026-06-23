@@ -68,3 +68,33 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
      (SELECT id FROM station WHERE name = '활어다이'), NOW(), NOW()),
     ('staff_back', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
      (SELECT id FROM station WHERE name = '뒷주방'), NOW(), NOW());
+
+-- ============================================
+-- 4. 손님 좌석(RestaurantTable) 시드
+--    1~20번: 다찌석(카운터, 1인용) / 21~23번: 테이블 1~3 (4인용)
+--    table_number는 전역 unique라 다찌/테이블 번호가 겹치지 않게 이어서 매김
+-- ============================================
+INSERT INTO restaurant_table (table_number, seat_count, status, created_at, updated_at) VALUES
+    (1, 1, 'EMPTY', NOW(), NOW()),
+    (2, 1, 'EMPTY', NOW(), NOW()),
+    (3, 1, 'EMPTY', NOW(), NOW()),
+    (4, 1, 'EMPTY', NOW(), NOW()),
+    (5, 1, 'EMPTY', NOW(), NOW()),
+    (6, 1, 'EMPTY', NOW(), NOW()),
+    (7, 1, 'EMPTY', NOW(), NOW()),
+    (8, 1, 'EMPTY', NOW(), NOW()),
+    (9, 1, 'EMPTY', NOW(), NOW()),
+    (10, 1, 'EMPTY', NOW(), NOW()),
+    (11, 1, 'EMPTY', NOW(), NOW()),
+    (12, 1, 'EMPTY', NOW(), NOW()),
+    (13, 1, 'EMPTY', NOW(), NOW()),
+    (14, 1, 'EMPTY', NOW(), NOW()),
+    (15, 1, 'EMPTY', NOW(), NOW()),
+    (16, 1, 'EMPTY', NOW(), NOW()),
+    (17, 1, 'EMPTY', NOW(), NOW()),
+    (18, 1, 'EMPTY', NOW(), NOW()),
+    (19, 1, 'EMPTY', NOW(), NOW()),
+    (20, 1, 'EMPTY', NOW(), NOW()),
+    (21, 4, 'EMPTY', NOW(), NOW()),
+    (22, 4, 'EMPTY', NOW(), NOW()),
+    (23, 4, 'EMPTY', NOW(), NOW());

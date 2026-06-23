@@ -4,10 +4,13 @@ import com.joonoh.sushiorder.domain.menu.entity.Menu;
 import com.joonoh.sushiorder.domain.menu.entity.MenuCategory;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Getter
 @Builder
 public class MenuResponse {
+    private static final String NODATA_IMAGE_PATH = "/images/nodata.svg";
+
     private Long id;
     private String name;
     private String description;
@@ -30,7 +33,7 @@ public class MenuResponse {
                 .description(menu.getDescription())
                 .price(menu.getPrice())
                 .category(menu.getCategory())
-                .imageUrl(menu.getImageUrl())
+                .imageUrl(toAbsoluteUrl(menu.getImageUrl()))
                 .ingredients(menu.getIngredients())
                 .allergyInfo(menu.getAllergyInfo())
                 .stockCount(menu.getStockCount())
@@ -40,5 +43,15 @@ public class MenuResponse {
                 .active(menu.isActive())
                 .stationId(menu.getStationId())
                 .build();
+    }
+
+    private static String toAbsoluteUrl(String imageUrl) {
+        String path = (imageUrl == null || imageUrl.isBlank()) ? NODATA_IMAGE_PATH : imageUrl;
+        if (!path.startsWith("/")) {
+            return path;
+        }
+        return ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(path)
+                .toUriString();
     }
 }

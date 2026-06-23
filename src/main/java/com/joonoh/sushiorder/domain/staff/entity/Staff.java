@@ -28,8 +28,12 @@ public class Staff extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private StaffRole role;
 
+    // Aggregate 간 참조는 ID로만 — 출근할 때마다 바뀔 수 있어 직원 본인이 로그인 후 직접 설정
+    @Column(name = "station_id")
+    private Long stationId;
+
     @Builder
-    private Staff(String username, String encodedPassword, StaffRole role) {
+    private Staff(String username, String encodedPassword, StaffRole role, Long stationId) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username은 필수입니다.");
         }
@@ -42,5 +46,11 @@ public class Staff extends BaseTimeEntity {
         this.username = username;
         this.password = encodedPassword;
         this.role = role;
+        this.stationId = stationId;
+    }
+
+    /** 직원이 로그인 후 본인이 근무할 자리를 직접 지정 */
+    public void assignStation(Long stationId) {
+        this.stationId = stationId;
     }
 }

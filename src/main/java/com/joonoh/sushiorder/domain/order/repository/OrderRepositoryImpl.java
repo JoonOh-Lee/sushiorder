@@ -4,12 +4,14 @@ import com.joonoh.sushiorder.domain.order.dto.OrderSearchCondition;
 import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.joonoh.sushiorder.domain.menu.entity.QMenu.menu;
 import static com.joonoh.sushiorder.domain.order.entity.QOrder.order;
 import static com.joonoh.sushiorder.domain.order.entity.QOrderItem.orderItem;
 
@@ -48,6 +50,25 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .selectFrom(order)
                 .leftJoin(order.items, orderItem).fetchJoin()
                 .where(order.status.eq(status))
+                .orderBy(order.id.asc())
+                .distinct()
+                .fetch();
+    }
+
+    @Override
+    public List<Order> findByStatusAndStationId(OrderStatus status, Long stationId) {
+        return queryFactory
+                .selectFrom(order)
+                .leftJoin(order.items, orderItem).fetchJoin()
+                .where(
+                        order.status.eq(status),
+                        order.id.in(
+                                JPAExpressions.select(orderItem.order.id)
+                                        .from(orderItem)
+                                        .join(menu).on(orderItem.menuId.eq(menu.id))
+                                        .where(menu.stationId.eq(stationId))
+                        )
+                )
                 .orderBy(order.id.asc())
                 .distinct()
                 .fetch();

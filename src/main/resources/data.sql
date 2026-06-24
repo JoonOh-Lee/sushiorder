@@ -103,10 +103,10 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
      (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW()),
     ('콜라(제로)', '탄산 가득, 시원하게 한 잔', 2000, 'DRINK_ALCOHOL', '/images/menu/drink.svg', '탄산수, 액상과당, 카라멜색소, 카페인', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW()),
-   ('환타', '탄산 가득, 시원하게 한 잔', 2000, 'DRINK_ALCOHOL', '/images/menu/drink.svg', '탄산수, 액상과당, 카라멜색소, 카페인', '없음', NULL, 0, 0, true,
+    ('환타', '탄산 가득, 시원하게 한 잔', 2000, 'DRINK_ALCOHOL', '/images/menu/drink.svg', '탄산수, 액상과당, 카라멜색소, 카페인', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW()),
-   ('사이다', '탄산 가득, 시원하게 한 잔', 2000, 'DRINK_ALCOHOL', '/images/menu/drink.svg', '탄산수, 액상과당, 카라멜색소, 카페인', '없음', NULL, 0, 0, true,
-     (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW()),
+    ('사이다', '탄산 가득, 시원하게 한 잔', 2000, 'DRINK_ALCOHOL', '/images/menu/drink.svg', '탄산수, 액상과당, 카라멜색소, 카페인', '없음', NULL, 0, 0, true,
+     (SELECT id FROM station WHERE name = '뒷주방'), 0, NOW(), NOW());
 
 -- 디저트/기타 (DESSERT_ETC) — 뒷주방 케이크/푸딩/아이스크림 보드
 INSERT INTO menu (name, description, price, category, image_url, ingredients, allergy_info, stock_count, like_count, dislike_count, is_active, station_id, version, created_at, updated_at) VALUES

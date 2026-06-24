@@ -346,15 +346,15 @@
       ]
     },
     {
-      "name": "Order (Admin)",
-      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "name": "Order (Staff)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
       "item": [
         {
           "name": "Active Orders By Table",
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/table/{{tableId}}/active", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "table", "{{tableId}}", "active"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/table/{{tableId}}/active", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "table", "{{tableId}}", "active"] }
           }
         },
         {
@@ -363,9 +363,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/order?status=PENDING",
+              "raw": "{{baseUrl}}/api/v1/staff/order?status=PENDING",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "order"],
+              "path": ["api", "v1", "staff", "order"],
               "query": [{ "key": "status", "value": "PENDING" }]
             }
           }
@@ -375,7 +375,7 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "confirm"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "confirm"] }
           }
         },
         {
@@ -383,7 +383,7 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "complete"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "complete"] }
           }
         },
         {
@@ -391,7 +391,7 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "cancel"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "cancel"] }
           }
         }
       ]

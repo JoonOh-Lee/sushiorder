@@ -25,6 +25,6 @@ public class CallController {
             @RequestAttribute(SessionTokenInterceptor.TABLE_ID_ATTRIBUTE) Long tableId,
             @RequestAttribute(SessionTokenInterceptor.SESSION_ID_ATTRIBUTE) Long sessionId,
             @Valid @RequestBody StaffCallRequest request) {
-        return ApiResponse.success(staffCallService.createCall(tableId, sessionId, request.getType()));
+        return ApiResponse.success(staffCallService.createCall(tableId, sessionId, request.getType(), request.getItemName()));
     }
 }

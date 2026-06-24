@@ -27,12 +27,16 @@ public class StaffCall extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private CallType type;
 
+    // ITEM_REQUEST(물품 요청)일 때만 사용 — 장국추가/물티슈/수저젓가락/락교초생강 등 요청 품목명
+    @Column(name = "item_name", length = 50)
+    private String itemName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CallStatus status;
 
     @Builder
-    private StaffCall(Long tableId, Long sessionId, CallType type) {
+    private StaffCall(Long tableId, Long sessionId, CallType type, String itemName) {
         if (tableId == null) {
             throw new IllegalArgumentException("tableId는 필수입니다.");
         }
@@ -42,9 +46,13 @@ public class StaffCall extends BaseTimeEntity {
         if (type == null) {
             throw new IllegalArgumentException("호출 유형은 필수입니다.");
         }
+        if (type == CallType.ITEM_REQUEST && (itemName == null || itemName.isBlank())) {
+            throw new IllegalArgumentException("요청할 물품명은 필수입니다.");
+        }
         this.tableId = tableId;
         this.sessionId = sessionId;
         this.type = type;
+        this.itemName = type == CallType.ITEM_REQUEST ? itemName : null;
         this.status = CallStatus.REQUESTED;
     }
 

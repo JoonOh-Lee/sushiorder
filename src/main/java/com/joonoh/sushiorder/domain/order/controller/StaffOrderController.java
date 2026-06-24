@@ -22,10 +22,15 @@ public class StaffOrderController {
         return ApiResponse.success(orderService.getActiveOrdersByTableId(tableId));
     }
 
-    /** 상태별 주문 조회 (주방용: CONFIRMED 주문 목록 등) */
+    /**
+     * 상태별 주문 조회 (주방용: CONFIRMED 주문 목록 등).
+     * stationId를 같이 주면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환 (station 화면용).
+     */
     @GetMapping
-    public ApiResponse<List<OrderResponse>> getOrdersByStatus(@RequestParam OrderStatus status) {
-        return ApiResponse.success(orderService.getOrdersByStatus(status));
+    public ApiResponse<List<OrderResponse>> getOrdersByStatus(
+            @RequestParam OrderStatus status,
+            @RequestParam(required = false) Long stationId) {
+        return ApiResponse.success(orderService.getOrdersByStatus(status, stationId));
     }
 
     /** 주문 확정 — 이때 재고 차감 발생 */

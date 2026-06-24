@@ -16,6 +16,9 @@ public interface OrderRepositoryCustom {
     /** 상태별 주문 조회 (주방용: CONFIRMED 주문만 뽑기) */
     List<Order> findByStatus(OrderStatus status);
 
+    /** 상태 + station별 주문 조회 — 해당 station이 담당하는 메뉴가 하나라도 포함된 주문 (station 화면용) */
+    List<Order> findByStatusAndStationId(OrderStatus status, Long stationId);
+
     /** 동적 조건 검색 (관리자용) */
     List<Order> searchOrders(OrderSearchCondition condition);
 }

@@ -426,6 +426,21 @@
               }
             }
           ]
+        },
+        {
+          "name": "Call Staff (Item Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Session-Token", "value": "{{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"ITEM_REQUEST\",\n  \"itemName\": \"장국추가\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "call"] }
+          }
         }
       ]
     },

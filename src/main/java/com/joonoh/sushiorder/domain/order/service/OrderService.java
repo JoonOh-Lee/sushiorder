@@ -10,6 +10,8 @@ import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
 import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.order.repository.OrderRepository;
+import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
+import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,6 +33,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final MenuRepository menuRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
 
     /**
      * 주문 접수 (손님 → PENDING 상태로 저장)
@@ -45,7 +50,7 @@ public class OrderService {
                 .map(existing -> {
                     log.info("중복 주문 요청 감지 — 기존 주문 반환. key={}, orderId={}",
                             request.getIdempotencyKey(), existing.getId());
-                    return OrderResponse.from(existing);
+                    return toResponse(existing);
                 })
                 .orElseGet(() -> createNewOrder(tableId, sessionId, request));
     }
@@ -79,7 +84,7 @@ public class OrderService {
         log.info("새 주문 생성 — orderId={}, tableId={}, total={}",
                 saved.getId(), saved.getTableId(), saved.getTotalPrice());
 
-        return OrderResponse.from(saved);
+        return toResponse(saved);
     }
 
     /**
@@ -108,7 +113,7 @@ public class OrderService {
         }
 
         log.info("주문 확정 — orderId={}", orderId);
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     @Recover
@@ -134,7 +139,7 @@ public class OrderService {
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
         order.complete();
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     /**
@@ -157,7 +162,7 @@ public class OrderService {
             log.info("CONFIRMED 주문 취소 — 재고 복구 완료. orderId={}", orderId);
         }
 
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     // ===== 조회 메서드 =====
@@ -168,19 +173,15 @@ public class OrderService {
         if (!order.getSessionId().equals(sessionId)) {
             throw new OrderNotFoundException(orderId);
         }
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     public List<OrderResponse> getActiveOrdersByTableId(Long tableId) {
-        return orderRepository.findActiveOrdersByTableId(tableId).stream()
-                .map(OrderResponse::from)
-                .toList();
+        return toResponses(orderRepository.findActiveOrdersByTableId(tableId));
     }
 
     public List<OrderResponse> getOrdersBySessionId(Long sessionId) {
-        return orderRepository.findBySessionId(sessionId).stream()
-                .map(OrderResponse::from)
-                .toList();
+        return toResponses(orderRepository.findBySessionId(sessionId));
     }
 
     private Order findOrderOrThrow(Long orderId) {
@@ -188,9 +189,29 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
-        return orderRepository.findByStatus(status).stream()
-                .map(OrderResponse::from)
+    /** stationId가 주어지면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환 */
+    public List<OrderResponse> getOrdersByStatus(OrderStatus status, Long stationId) {
+        List<Order> orders = stationId != null
+                ? orderRepository.findByStatusAndStationId(status, stationId)
+                : orderRepository.findByStatus(status);
+        return toResponses(orders);
+    }
+
+    /** 테이블 조회는 응답 보강용일 뿐 — 못 찾아도 주문 처리 자체는 막지 않는다 */
+    private OrderResponse toResponse(Order order) {
+        RestaurantTable table = restaurantTableRepository.findById(order.getTableId()).orElse(null);
+        return OrderResponse.from(order, table);
+    }
+
+    /** N+1 방지 — 주문들의 tableId를 모아 한 번에 조회 후 매핑 */
+    private List<OrderResponse> toResponses(List<Order> orders) {
+        Map<Long, RestaurantTable> tablesById = restaurantTableRepository
+                .findAllById(orders.stream().map(Order::getTableId).distinct().toList())
+                .stream()
+                .collect(Collectors.toMap(RestaurantTable::getId, t -> t));
+
+        return orders.stream()
+                .map(order -> OrderResponse.from(order, tablesById.get(order.getTableId())))
                 .toList();
     }
 }

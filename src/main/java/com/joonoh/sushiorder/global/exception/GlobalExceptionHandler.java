@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.global.exception;
 
 import com.joonoh.sushiorder.domain.menu.exception.MenuNotFoundException;
+import com.joonoh.sushiorder.domain.notice.exception.NoticeNotFoundException;
 import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.session.exception.InvalidSessionTokenException;
@@ -92,6 +93,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(StaffCallNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleStaffCallNotFound(StaffCallNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(NoticeNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoticeNotFound(NoticeNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.fail(e.getMessage()));
     }

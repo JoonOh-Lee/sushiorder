@@ -20,7 +20,7 @@ public class StaffCallService {
     private final StaffCallRepository staffCallRepository;
 
     @Transactional
-    public StaffCallResponse createCall(Long tableId, Long sessionId, CallType type) {
+    public StaffCallResponse createCall(Long tableId, Long sessionId, CallType type, String itemName) {
         if (staffCallRepository.existsByTableIdAndStatus(tableId, CallStatus.REQUESTED)) {
             throw new IllegalStateException("이미 처리 대기 중인 호출이 있습니다.");
         }
@@ -29,6 +29,7 @@ public class StaffCallService {
                 .tableId(tableId)
                 .sessionId(sessionId)
                 .type(type)
+                .itemName(itemName)
                 .build();
 
         return StaffCallResponse.from(staffCallRepository.save(call));

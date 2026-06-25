@@ -24,11 +24,13 @@ public class StaffOrderController {
 
     /**
      * 상태별 주문 조회 (주방용: CONFIRMED 주문 목록 등).
+     * status는 여러 개를 줄 수 있다 (ex. ?status=PENDING&status=CONFIRMED) — station 화면에서
+     * 주문 접수 즉시(PENDING)부터 조리 중(CONFIRMED)까지 한 번에 보고 싶을 때 사용.
      * stationId를 같이 주면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환 (station 화면용).
      */
     @GetMapping
     public ApiResponse<List<OrderResponse>> getOrdersByStatus(
-            @RequestParam OrderStatus status,
+            @RequestParam List<OrderStatus> status,
             @RequestParam(required = false) Long stationId) {
         return ApiResponse.success(orderService.getOrdersByStatus(status, stationId));
     }

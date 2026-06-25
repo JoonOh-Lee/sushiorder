@@ -189,11 +189,11 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
-    /** stationId가 주어지면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환 */
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status, Long stationId) {
+    /** stationId가 주어지면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환. statuses는 OR 조건 (ex. PENDING+CONFIRMED 동시 조회) */
+    public List<OrderResponse> getOrdersByStatus(List<OrderStatus> statuses, Long stationId) {
         List<Order> orders = stationId != null
-                ? orderRepository.findByStatusAndStationId(status, stationId)
-                : orderRepository.findByStatus(status);
+                ? orderRepository.findByStatusInAndStationId(statuses, stationId)
+                : orderRepository.findByStatusIn(statuses);
         return toResponses(orders);
     }
 

@@ -13,11 +13,11 @@ public interface OrderRepositoryCustom {
     /** 특정 세션의 모든 주문 (손님 입장에서 본인 주문 내역) */
     List<Order> findBySessionId(Long sessionId);
 
-    /** 상태별 주문 조회 (주방용: CONFIRMED 주문만 뽑기) */
-    List<Order> findByStatus(OrderStatus status);
+    /** 상태별 주문 조회 (주방용) — 여러 상태를 한 번에 받아 OR 조건으로 조회 (ex. PENDING+CONFIRMED) */
+    List<Order> findByStatusIn(List<OrderStatus> statuses);
 
     /** 상태 + station별 주문 조회 — 해당 station이 담당하는 메뉴가 하나라도 포함된 주문 (station 화면용) */
-    List<Order> findByStatusAndStationId(OrderStatus status, Long stationId);
+    List<Order> findByStatusInAndStationId(List<OrderStatus> statuses, Long stationId);
 
     /** 동적 조건 검색 (관리자용) */
     List<Order> searchOrders(OrderSearchCondition condition);

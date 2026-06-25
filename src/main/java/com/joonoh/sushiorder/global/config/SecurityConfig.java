@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/staff/**").authenticated()  // 본인 station 조회/지정 — 직원이면 누구나
                         .requestMatchers("/api/v1/station/**").authenticated()
+                        .requestMatchers("/api/v1/table/**").authenticated()  // 매장 평면도 조회 — 직원이면 누구나 (위치 수정은 /admin/table 쪽 ADMIN 전용)
                         .requestMatchers("/api/v1/menu/**").permitAll()
                         .requestMatchers("/api/v1/notice/**").permitAll()  // 손님/직원 공용 공지 조회 — 인증 불필요
                         .requestMatchers("/api/v1/order/**").permitAll()  // SessionTokenInterceptor가 MVC 계층에서 QR 토큰 검증

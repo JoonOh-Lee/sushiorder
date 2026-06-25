@@ -277,33 +277,44 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
 -- 4. 손님 좌석(RestaurantTable) 시드
 --    COUNTER(다찌석, 1인용) 1~20번 / TABLE(테이블, 4인용) 1~3번
 --    table_number는 seat_type별로 따로 매겨진다 (seat_type+table_number 복합 unique)
---    x/y/width/height는 매장 평면도용 좌표(0~100 퍼센트) — 회전초밥 레일을 사이에 두고
---    다찌석 1~10번/11~20번이 두 줄로 마주보게, 테이블 1~3번은 그 아래쪽에 가로로 배치한 예시 좌표.
+--    x/y/width/height는 매장 평면도용 좌표(0~100 퍼센트). 라벨 글자수가 다 비슷해서
+--    전부 10x10으로 통일. 가운데 주방+레일(floor_plan_element 시드 참고)을 ㄷ자로
+--    감싸는 구조 — 위쪽 한 면은 다찌석 1~10번, 아래쪽 한 면은 다찌석 11~20번,
+--    오른쪽 짧은 면은 테이블 1~3번, 왼쪽은 입구/통로라 비워둠.
 -- ============================================
 INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, x, y, width, height, created_at, updated_at) VALUES
-    ('COUNTER', 1, 1, 'EMPTY', 5, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 2, 1, 'EMPTY', 9, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 3, 1, 'EMPTY', 13, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 4, 1, 'EMPTY', 17, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 5, 1, 'EMPTY', 21, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 6, 1, 'EMPTY', 25, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 7, 1, 'EMPTY', 29, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 8, 1, 'EMPTY', 33, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 9, 1, 'EMPTY', 37, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 10, 1, 'EMPTY', 41, 15, 3, 6, NOW(), NOW()),
-    ('COUNTER', 11, 1, 'EMPTY', 5, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 12, 1, 'EMPTY', 9, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 13, 1, 'EMPTY', 13, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 14, 1, 'EMPTY', 17, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 15, 1, 'EMPTY', 21, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 16, 1, 'EMPTY', 25, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 17, 1, 'EMPTY', 29, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 18, 1, 'EMPTY', 33, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 19, 1, 'EMPTY', 37, 35, 3, 6, NOW(), NOW()),
-    ('COUNTER', 20, 1, 'EMPTY', 41, 35, 3, 6, NOW(), NOW()),
-    ('TABLE', 1, 4, 'EMPTY', 10, 65, 18, 15, NOW(), NOW()),
-    ('TABLE', 2, 4, 'EMPTY', 40, 65, 18, 15, NOW(), NOW()),
-    ('TABLE', 3, 4, 'EMPTY', 70, 65, 18, 15, NOW(), NOW());
+    ('COUNTER', 1, 1, 'EMPTY', 0, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 2, 1, 'EMPTY', 10, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 3, 1, 'EMPTY', 20, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 4, 1, 'EMPTY', 30, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 5, 1, 'EMPTY', 40, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 6, 1, 'EMPTY', 50, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 7, 1, 'EMPTY', 60, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 8, 1, 'EMPTY', 70, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 9, 1, 'EMPTY', 80, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 10, 1, 'EMPTY', 90, 15, 10, 10, NOW(), NOW()),
+    ('COUNTER', 11, 1, 'EMPTY', 0, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 12, 1, 'EMPTY', 10, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 13, 1, 'EMPTY', 20, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 14, 1, 'EMPTY', 30, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 15, 1, 'EMPTY', 40, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 16, 1, 'EMPTY', 50, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 17, 1, 'EMPTY', 60, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 18, 1, 'EMPTY', 70, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 19, 1, 'EMPTY', 80, 75, 10, 10, NOW(), NOW()),
+    ('COUNTER', 20, 1, 'EMPTY', 90, 75, 10, 10, NOW(), NOW()),
+    ('TABLE', 1, 4, 'EMPTY', 75, 35, 10, 10, NOW(), NOW()),
+    ('TABLE', 2, 4, 'EMPTY', 75, 45, 10, 10, NOW(), NOW()),
+    ('TABLE', 3, 4, 'EMPTY', 75, 55, 10, 10, NOW(), NOW());
+
+-- ============================================
+-- 4-1. 매장 평면도 고정 시설(FloorPlanElement) 시드
+--    주방을 가운데 두고 회전초밥 레일이 그 주위를 한 바퀴 감싸는 구조.
+--    레일 사각형이 주방보다 넓게 그려져서, 그 사이 여백이 곧 레일이 도는 길.
+-- ============================================
+INSERT INTO floor_plan_element (type, label, x, y, width, height, created_at, updated_at) VALUES
+    ('RAIL', '회전초밥 레일', 30, 30, 40, 40, NOW(), NOW()),
+    ('KITCHEN', '주방', 42, 42, 16, 16, NOW(), NOW());
 
 -- ============================================
 -- 5. 공지(Notice) 시드

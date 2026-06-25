@@ -283,39 +283,92 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
 --    오른쪽 세로줄(다찌석 11→20, 위→아래), 아래쪽은 입구/통로라 비워둠.
 -- ============================================
 INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, x, y, width, height, created_at, updated_at) VALUES
-    ('COUNTER', 1, 1, 'EMPTY', 20, 100, 10, 10, NOW(), NOW()),
-    ('COUNTER', 2, 1, 'EMPTY', 20, 90, 10, 10, NOW(), NOW()),
-    ('COUNTER', 3, 1, 'EMPTY', 20, 80, 10, 10, NOW(), NOW()),
-    ('COUNTER', 4, 1, 'EMPTY', 20, 70, 10, 10, NOW(), NOW()),
-    ('COUNTER', 5, 1, 'EMPTY', 20, 60, 10, 10, NOW(), NOW()),
-    ('COUNTER', 6, 1, 'EMPTY', 20, 50, 10, 10, NOW(), NOW()),
-    ('COUNTER', 7, 1, 'EMPTY', 20, 40, 10, 10, NOW(), NOW()),
-    ('COUNTER', 8, 1, 'EMPTY', 20, 30, 10, 10, NOW(), NOW()),
-    ('COUNTER', 9, 1, 'EMPTY', 20, 20, 10, 10, NOW(), NOW()),
-    ('COUNTER', 10, 1, 'EMPTY', 20, 10, 10, 10, NOW(), NOW()),
-    ('COUNTER', 11, 1, 'EMPTY', 70, 10, 10, 10, NOW(), NOW()),
-    ('COUNTER', 12, 1, 'EMPTY', 70, 20, 10, 10, NOW(), NOW()),
-    ('COUNTER', 13, 1, 'EMPTY', 70, 30, 10, 10, NOW(), NOW()),
-    ('COUNTER', 14, 1, 'EMPTY', 70, 40, 10, 10, NOW(), NOW()),
-    ('COUNTER', 15, 1, 'EMPTY', 70, 50, 10, 10, NOW(), NOW()),
-    ('COUNTER', 16, 1, 'EMPTY', 70, 60, 10, 10, NOW(), NOW()),
-    ('COUNTER', 17, 1, 'EMPTY', 70, 70, 10, 10, NOW(), NOW()),
-    ('COUNTER', 18, 1, 'EMPTY', 70, 80, 10, 10, NOW(), NOW()),
-    ('COUNTER', 19, 1, 'EMPTY', 70, 90, 10, 10, NOW(), NOW()),
-    ('COUNTER', 20, 1, 'EMPTY', 70, 100, 10, 10, NOW(), NOW()),
-    ('TABLE', 1, 4, 'EMPTY', 30, 0, 10, 10, NOW(), NOW()),
-    ('TABLE', 2, 4, 'EMPTY', 45, 0, 10, 10, NOW(), NOW()),
-    ('TABLE', 3, 4, 'EMPTY', 60, 0, 10, 10, NOW(), NOW());
+    ('COUNTER', 1, 1, 'EMPTY', 20, 91, 10, 5, NOW(), NOW()),
+    ('COUNTER', 2, 1, 'EMPTY', 20, 82, 10, 5, NOW(), NOW()),
+    ('COUNTER', 3, 1, 'EMPTY', 20, 73, 10, 5, NOW(), NOW()),
+    ('COUNTER', 4, 1, 'EMPTY', 20, 64, 10, 5, NOW(), NOW()),
+    ('COUNTER', 5, 1, 'EMPTY', 20, 55, 10, 5, NOW(), NOW()),
+    ('COUNTER', 6, 1, 'EMPTY', 20, 46, 10, 5, NOW(), NOW()),
+    ('COUNTER', 7, 1, 'EMPTY', 20, 37, 10, 5, NOW(), NOW()),
+    ('COUNTER', 8, 1, 'EMPTY', 20, 28, 10, 5, NOW(), NOW()),
+    ('COUNTER', 9, 1, 'EMPTY', 20, 19, 10, 5, NOW(), NOW()),
+    ('COUNTER', 10, 1, 'EMPTY', 20, 10, 10, 5, NOW(), NOW()),
+    ('COUNTER', 11, 1, 'EMPTY', 70, 10, 10, 5, NOW(), NOW()),
+    ('COUNTER', 12, 1, 'EMPTY', 70, 19, 10, 5, NOW(), NOW()),
+    ('COUNTER', 13, 1, 'EMPTY', 70, 28, 10, 5, NOW(), NOW()),
+    ('COUNTER', 14, 1, 'EMPTY', 70, 37, 10, 5, NOW(), NOW()),
+    ('COUNTER', 15, 1, 'EMPTY', 70, 46, 10, 5, NOW(), NOW()),
+    ('COUNTER', 16, 1, 'EMPTY', 70, 55, 10, 5, NOW(), NOW()),
+    ('COUNTER', 17, 1, 'EMPTY', 70, 64, 10, 5, NOW(), NOW()),
+    ('COUNTER', 18, 1, 'EMPTY', 70, 73, 10, 5, NOW(), NOW()),
+    ('COUNTER', 19, 1, 'EMPTY', 70, 82, 10, 5, NOW(), NOW()),
+    ('COUNTER', 20, 1, 'EMPTY', 70, 91, 10, 5, NOW(), NOW()),
+    ('TABLE', 1, 4, 'EMPTY', 30, 0, 10, 5, NOW(), NOW()),
+    ('TABLE', 2, 4, 'EMPTY', 45, 0, 10, 5, NOW(), NOW()),
+    ('TABLE', 3, 4, 'EMPTY', 60, 0, 10, 5, NOW(), NOW());
 
 -- ============================================
 -- 4-1. 매장 평면도 고정 시설(FloorPlanElement) 시드
---    주방을 가운데 두고 회전초밥 레일이 그 주위를 한 바퀴 감싸는 구조.
---    레일 사각형이 주방보다 넓게 그려져서, 그 사이 여백이 곧 레일이 도는 길.
---    위쪽 테이블 줄(y:0~10) 바로 아래, 좌우 다찌석 줄(x:0~10 / 90~100) 사이 빈 공간에 위치.
+--    주방만 박스로 표현 — 레일은 더 이상 박스가 아니라 rail_segment 목록(아래 4-2)으로 표현한다.
 -- ============================================
 INSERT INTO floor_plan_element (type, label, x, y, width, height, created_at, updated_at) VALUES
-    ('RAIL', '회전초밥 레일', 30, 25, 40, 40, NOW(), NOW()),
     ('KITCHEN', '주방', 42, 37, 16, 16, NOW(), NOW());
+
+-- ============================================
+-- 4-2. 회전초밥 레일 구간(RailSegment) 시드
+--    좌석 사이를 잇는 구간 단위로 표현 — x/y는 안 저장하고 from/toTableId만 참조,
+--    실제 선 좌표는 프론트가 RestaurantTable의 x/y로 매번 계산한다.
+--    다찌석1→...→다찌석10→테이블1→테이블2→테이블3→다찌석11→...→다찌석20으로 끝나는
+--    경로. 다찌석1과 다찌석20은 평면도상 마주보는 게 아니라 입구/통로(아래쪽 빈 공간)를
+--    사이에 두고 멀찍이 떨어져 있어서 둘을 잇는 구간은 없다(루프가 닫히지 않음).
+--    손님이 적을 때 일부 구간을 꺼서(active=false) 순환 범위를 줄이는 용도라
+--    시드는 전부 active=true(전체 구간 켜짐)로 시작한다.
+-- ============================================
+INSERT INTO rail_segment (sequence_order, from_table_id, to_table_id, active, created_at, updated_at) VALUES
+    (1, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 1),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 2), true, NOW(), NOW()),
+    (2, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 2),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 3), true, NOW(), NOW()),
+    (3, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 3),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 4), true, NOW(), NOW()),
+    (4, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 4),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 5), true, NOW(), NOW()),
+    (5, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 5),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 6), true, NOW(), NOW()),
+    (6, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 6),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 7), true, NOW(), NOW()),
+    (7, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 7),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 8), true, NOW(), NOW()),
+    (8, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 8),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 9), true, NOW(), NOW()),
+    (9, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 9),
+        (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 10), true, NOW(), NOW()),
+    (10, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 10),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 1), true, NOW(), NOW()),
+    (11, (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 1),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 2), true, NOW(), NOW()),
+    (12, (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 2),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 3), true, NOW(), NOW()),
+    (13, (SELECT id FROM restaurant_table WHERE seat_type = 'TABLE' AND table_number = 3),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 11), true, NOW(), NOW()),
+    (14, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 11),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 12), true, NOW(), NOW()),
+    (15, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 12),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 13), true, NOW(), NOW()),
+    (16, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 13),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 14), true, NOW(), NOW()),
+    (17, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 14),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 15), true, NOW(), NOW()),
+    (18, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 15),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 16), true, NOW(), NOW()),
+    (19, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 16),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 17), true, NOW(), NOW()),
+    (20, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 17),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 18), true, NOW(), NOW()),
+    (21, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 18),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 19), true, NOW(), NOW()),
+    (22, (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 19),
+         (SELECT id FROM restaurant_table WHERE seat_type = 'COUNTER' AND table_number = 20), true, NOW(), NOW());
 
 -- ============================================
 -- 5. 공지(Notice) 시드

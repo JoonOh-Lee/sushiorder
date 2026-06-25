@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.restauranttable.service;
 
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableCreateRequest;
+import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTablePositionRequest;
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
 import com.joonoh.sushiorder.domain.restauranttable.entity.SeatType;
 import com.joonoh.sushiorder.domain.restauranttable.entity.TableStatus;
@@ -109,6 +110,42 @@ class RestaurantTableServiceTest {
     void getTable_notFound_throws() {
         assertThatThrownBy(() -> restaurantTableService.getTable(999_999L))
                 .isInstanceOf(RestaurantTableNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("새로 만든 테이블은 평면도 위치가 비어있고, 위치를 수정하면 반영된다")
+    void updatePosition_setsCoordinates() {
+        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8007, 4));
+        tableId = created.getId();
+        assertThat(created.getX()).isNull();
+
+        RestaurantTableResponse updated = restaurantTableService.updatePosition(
+                tableId, positionRequest(10.5, 20.0, 15.0, 15.0));
+
+        assertThat(updated.getX()).isEqualTo(10.5);
+        assertThat(updated.getY()).isEqualTo(20.0);
+        assertThat(updated.getWidth()).isEqualTo(15.0);
+        assertThat(updated.getHeight()).isEqualTo(15.0);
+    }
+
+    @Test
+    @DisplayName("0~100 범위를 벗어난 좌표로는 위치를 수정할 수 없다")
+    void updatePosition_outOfRange_throws() {
+        RestaurantTableResponse created = restaurantTableService.createTable(createRequest(SeatType.TABLE, 8008, 4));
+        tableId = created.getId();
+
+        assertThatThrownBy(() -> restaurantTableService.updatePosition(
+                tableId, positionRequest(101.0, 20.0, 15.0, 15.0)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    private RestaurantTablePositionRequest positionRequest(double x, double y, double width, double height) {
+        RestaurantTablePositionRequest request = new RestaurantTablePositionRequest();
+        setField(request, "x", x);
+        setField(request, "y", y);
+        setField(request, "width", width);
+        setField(request, "height", height);
+        return request;
     }
 
     private RestaurantTableCreateRequest createRequest(SeatType seatType, int tableNumber, int seatCount) {

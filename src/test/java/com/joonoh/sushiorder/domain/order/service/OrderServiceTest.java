@@ -99,7 +99,7 @@ class OrderServiceTest {
         OrderResponse station1Order = orderService.placeOrder(tableId, 1L, placeOrderRequest(menuId, 1));
         OrderResponse station2Order = orderService.placeOrder(tableId, 2L, placeOrderRequest(otherStationMenuId, 1));
 
-        List<OrderResponse> station1Results = orderService.getOrdersByStatus(OrderStatus.PENDING, 1L);
+        List<OrderResponse> station1Results = orderService.getOrdersByStatus(List.of(OrderStatus.PENDING), 1L);
 
         assertThat(station1Results)
                 .extracting(OrderResponse::getId)
@@ -112,9 +112,24 @@ class OrderServiceTest {
     void getOrdersByStatus_withoutStation_returnsAll() {
         OrderResponse order = orderService.placeOrder(tableId, 1L, placeOrderRequest(menuId, 1));
 
-        List<OrderResponse> results = orderService.getOrdersByStatus(OrderStatus.PENDING, null);
+        List<OrderResponse> results = orderService.getOrdersByStatus(List.of(OrderStatus.PENDING), null);
 
         assertThat(results).extracting(OrderResponse::getId).contains(order.getId());
+    }
+
+    @Test
+    @DisplayName("status를 여러 개 주면 PENDING+CONFIRMED 주문을 한 번에 조회할 수 있다 (station 화면용)")
+    void getOrdersByStatus_withMultipleStatuses_returnsPendingAndConfirmed() {
+        OrderResponse pendingOrder = orderService.placeOrder(tableId, 1L, placeOrderRequest(menuId, 1));
+        OrderResponse toConfirmOrder = orderService.placeOrder(tableId, 2L, placeOrderRequest(menuId, 1));
+        orderService.confirmOrder(toConfirmOrder.getId());
+
+        List<OrderResponse> results = orderService.getOrdersByStatus(
+                List.of(OrderStatus.PENDING, OrderStatus.CONFIRMED), 1L);
+
+        assertThat(results)
+                .extracting(OrderResponse::getId)
+                .contains(pendingOrder.getId(), toConfirmOrder.getId());
     }
 
     private PlaceOrderRequest placeOrderRequest(Long menuId, int quantity) {

@@ -45,23 +45,23 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
     }
 
     @Override
-    public List<Order> findByStatus(OrderStatus status) {
+    public List<Order> findByStatusIn(List<OrderStatus> statuses) {
         return queryFactory
                 .selectFrom(order)
                 .leftJoin(order.items, orderItem).fetchJoin()
-                .where(order.status.eq(status))
+                .where(order.status.in(statuses))
                 .orderBy(order.id.asc())
                 .distinct()
                 .fetch();
     }
 
     @Override
-    public List<Order> findByStatusAndStationId(OrderStatus status, Long stationId) {
+    public List<Order> findByStatusInAndStationId(List<OrderStatus> statuses, Long stationId) {
         return queryFactory
                 .selectFrom(order)
                 .leftJoin(order.items, orderItem).fetchJoin()
                 .where(
-                        order.status.eq(status),
+                        order.status.in(statuses),
                         order.id.in(
                                 JPAExpressions.select(orderItem.order.id)
                                         .from(orderItem)

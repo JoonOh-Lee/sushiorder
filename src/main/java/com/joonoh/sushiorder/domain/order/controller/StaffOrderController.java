@@ -35,21 +35,48 @@ public class StaffOrderController {
         return ApiResponse.success(orderService.getOrdersByStatus(status, stationId));
     }
 
-    /** 주문 확정 — 이때 재고 차감 발생 */
+    /** 주문 확정(전체) — 이때 재고 차감 발생 */
     @PatchMapping("/{orderId}/confirm")
     public ApiResponse<OrderResponse> confirmOrder(@PathVariable Long orderId) {
         return ApiResponse.success(orderService.confirmOrder(orderId));
     }
 
-    /** 서빙 완료 처리 */
+    /** 서빙 완료 처리(전체) */
     @PatchMapping("/{orderId}/complete")
     public ApiResponse<OrderResponse> completeOrder(@PathVariable Long orderId) {
         return ApiResponse.success(orderService.completeOrder(orderId));
     }
 
-    /** 주문 취소 — CONFIRMED였다면 재고 복구도 함께 */
+    /** 주문 취소(전체) — CONFIRMED였다면 재고 복구도 함께 */
     @PatchMapping("/{orderId}/cancel")
     public ApiResponse<OrderResponse> cancelOrder(@PathVariable Long orderId) {
         return ApiResponse.success(orderService.cancelOrder(orderId));
+    }
+
+    /**
+     * station별 부분 접수 — 한 주문에 여러 station 메뉴가 섞여 있어도 본인 station 메뉴만 접수(재고 차감)한다.
+     * 다른 station 메뉴는 영향받지 않는다.
+     */
+    @PatchMapping("/{orderId}/station/{stationId}/confirm")
+    public ApiResponse<OrderResponse> confirmOrderItemsByStation(
+            @PathVariable Long orderId, @PathVariable Long stationId) {
+        return ApiResponse.success(orderService.confirmOrderItemsByStation(orderId, stationId));
+    }
+
+    /** station별 부분 완료 — 본인 station 메뉴만 서빙 완료 처리 */
+    @PatchMapping("/{orderId}/station/{stationId}/complete")
+    public ApiResponse<OrderResponse> completeOrderItemsByStation(
+            @PathVariable Long orderId, @PathVariable Long stationId) {
+        return ApiResponse.success(orderService.completeOrderItemsByStation(orderId, stationId));
+    }
+
+    /**
+     * station별 부분 취소 (ex. 재료 소진) — 본인 station 메뉴만 취소하고, 다른 station 메뉴는 그대로 진행된다.
+     * CONFIRMED였던 메뉴는 재고 복구, 주문 총액에서도 취소된 만큼 제외된다.
+     */
+    @PatchMapping("/{orderId}/station/{stationId}/cancel")
+    public ApiResponse<OrderResponse> cancelOrderItemsByStation(
+            @PathVariable Long orderId, @PathVariable Long stationId) {
+        return ApiResponse.success(orderService.cancelOrderItemsByStation(orderId, stationId));
     }
 }

@@ -32,6 +32,12 @@ public class RestaurantTable extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private TableStatus status;
 
+    // 매장 평면도 좌표 — 0~100 사이의 퍼센트 값 (프론트가 화면 비율 그대로 사용). 배치 전에는 null.
+    private Double x;
+    private Double y;
+    private Double width;
+    private Double height;
+
     @Builder
     private RestaurantTable(SeatType seatType, int tableNumber, int seatCount) {
         if (seatType == null) {
@@ -80,5 +86,23 @@ public class RestaurantTable extends BaseTimeEntity {
             throw new IllegalStateException("예약 상태가 아닙니다.");
         }
         this.status = TableStatus.EMPTY;
+    }
+
+    /** 매장 평면도 위치/크기 수정 — ADMIN이 매장별로 커스텀 배치 */
+    public void updatePosition(Double x, Double y, Double width, Double height) {
+        validatePercent(x, "x");
+        validatePercent(y, "y");
+        validatePercent(width, "width");
+        validatePercent(height, "height");
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    private void validatePercent(Double value, String fieldName) {
+        if (value == null || value < 0 || value > 100) {
+            throw new IllegalArgumentException(fieldName + "는 0~100 사이의 값이어야 합니다.");
+        }
     }
 }

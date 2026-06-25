@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.restauranttable.controller;
 
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableCreateRequest;
+import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTablePositionRequest;
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
 import com.joonoh.sushiorder.domain.restauranttable.service.RestaurantTableService;
 import com.joonoh.sushiorder.global.common.ApiResponse;
@@ -57,5 +58,12 @@ public class AdminRestaurantTableController {
     public ApiResponse<Void> cancelReservation(@PathVariable Long id) {
         restaurantTableService.cancelReservation(id);
         return ApiResponse.success();
+    }
+
+    /** 매장 평면도 위치/크기 수정 (POS 화면 커스텀 배치) — ADMIN 전용 */
+    @PatchMapping("/{id}/position")
+    public ApiResponse<RestaurantTableResponse> updatePosition(
+            @PathVariable Long id, @Valid @RequestBody RestaurantTablePositionRequest request) {
+        return ApiResponse.success(restaurantTableService.updatePosition(id, request));
     }
 }

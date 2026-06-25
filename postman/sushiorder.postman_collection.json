@@ -387,6 +387,23 @@
           }
         },
         {
+          "name": "List Orders By Multiple Statuses And Station (station board)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/staff/order?status=PENDING&status=CONFIRMED&stationId={{stationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "staff", "order"],
+              "query": [
+                { "key": "status", "value": "PENDING" },
+                { "key": "status", "value": "CONFIRMED" },
+                { "key": "stationId", "value": "{{stationId}}" }
+              ]
+            }
+          }
+        },
+        {
           "name": "Confirm Order",
           "request": {
             "method": "PATCH",

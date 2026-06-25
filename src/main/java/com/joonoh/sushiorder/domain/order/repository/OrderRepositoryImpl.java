@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.joonoh.sushiorder.domain.menu.entity.QMenu.menu;
 import static com.joonoh.sushiorder.domain.order.entity.QOrder.order;
 import static com.joonoh.sushiorder.domain.order.entity.QOrderItem.orderItem;
 
@@ -55,18 +54,24 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 .fetch();
     }
 
+    /**
+     * station 화면용 — 주문 전체 status가 아니라 "그 station이 담당하는 item 자체의 status"로 필터링.
+     * 같은 주문에 다른 station 메뉴가 섞여 있어도, 이 station 담당 item이 statuses에 해당하면 그 주문을 보여준다
+     * (item별 접수/완료/취소는 OrderItem.status로, OrderItem.stationId는 주문 시점 메뉴 station 스냅샷).
+     */
     @Override
     public List<Order> findByStatusInAndStationId(List<OrderStatus> statuses, Long stationId) {
         return queryFactory
                 .selectFrom(order)
                 .leftJoin(order.items, orderItem).fetchJoin()
                 .where(
-                        order.status.in(statuses),
                         order.id.in(
                                 JPAExpressions.select(orderItem.order.id)
                                         .from(orderItem)
-                                        .join(menu).on(orderItem.menuId.eq(menu.id))
-                                        .where(menu.stationId.eq(stationId))
+                                        .where(
+                                                orderItem.stationId.eq(stationId),
+                                                orderItem.status.in(statuses)
+                                        )
                         )
                 )
                 .orderBy(order.id.asc())

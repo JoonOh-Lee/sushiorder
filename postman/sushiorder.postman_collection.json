@@ -696,6 +696,42 @@
       ]
     },
     {
+      "name": "Rail Segment",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Segments (floor plan, STAFF+ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/rail-segment", "host": ["{{baseUrl}}"], "path": ["api", "v1", "rail-segment"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rail Segment (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Activate Segment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/{{railSegmentId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "{{railSegmentId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Segment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/{{railSegmentId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "{{railSegmentId}}", "deactivate"] }
+          }
+        }
+      ]
+    },
+    {
       "name": "Session",
       "item": [
         {

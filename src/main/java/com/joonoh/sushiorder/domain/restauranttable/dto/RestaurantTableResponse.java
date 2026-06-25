@@ -14,6 +14,10 @@ public class RestaurantTableResponse {
     private int tableNumber;
     private int seatCount;
     private TableStatus status;
+    private Double x;
+    private Double y;
+    private Double width;
+    private Double height;
 
     public static RestaurantTableResponse from(RestaurantTable table) {
         return RestaurantTableResponse.builder()
@@ -22,6 +26,10 @@ public class RestaurantTableResponse {
                 .tableNumber(table.getTableNumber())
                 .seatCount(table.getSeatCount())
                 .status(table.getStatus())
+                .x(table.getX())
+                .y(table.getY())
+                .width(table.getWidth())
+                .height(table.getHeight())
                 .build();
     }
 }

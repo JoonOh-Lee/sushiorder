@@ -426,6 +426,30 @@
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "cancel"] }
           }
+        },
+        {
+          "name": "Confirm Order Items By Station (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "confirm"] }
+          }
+        },
+        {
+          "name": "Complete Order Items By Station (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "complete"] }
+          }
+        },
+        {
+          "name": "Cancel Order Items By Station (partial, ex. 재료 소진)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "cancel"] }
+          }
         }
       ]
     },

@@ -4,6 +4,7 @@ import com.joonoh.sushiorder.domain.menu.entity.Menu;
 import com.joonoh.sushiorder.domain.menu.entity.MenuCategory;
 import com.joonoh.sushiorder.domain.menu.repository.MenuRepository;
 import com.joonoh.sushiorder.domain.order.dto.OrderItemRequest;
+import com.joonoh.sushiorder.domain.order.dto.OrderItemResponse;
 import com.joonoh.sushiorder.domain.order.dto.OrderResponse;
 import com.joonoh.sushiorder.domain.order.dto.PlaceOrderRequest;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
@@ -34,6 +35,7 @@ class OrderServiceTest {
 
     private Long menuId;
     private Long otherStationMenuId;
+    private Long limitedStockMenuId;
     private Long tableId;
 
     @BeforeEach
@@ -54,6 +56,15 @@ class OrderServiceTest {
                 .build();
         otherStationMenuId = menuRepository.saveAndFlush(otherStationMenu).getId();
 
+        Menu limitedStockMenu = Menu.builder()
+                .name("주문 테스트용 한정수량 초밥")
+                .price(1990)
+                .category(MenuCategory.FRESH_SUSHI)
+                .stockCount(5)
+                .stationId(1L)
+                .build();
+        limitedStockMenuId = menuRepository.saveAndFlush(limitedStockMenu).getId();
+
         RestaurantTable table = RestaurantTable.builder()
                 .seatType(SeatType.TABLE)
                 .tableNumber(9001)
@@ -67,6 +78,7 @@ class OrderServiceTest {
         orderRepository.deleteAll();
         menuRepository.deleteById(menuId);
         menuRepository.deleteById(otherStationMenuId);
+        menuRepository.deleteById(limitedStockMenuId);
         restaurantTableRepository.deleteById(tableId);
     }
 
@@ -132,6 +144,84 @@ class OrderServiceTest {
                 .contains(pendingOrder.getId(), toConfirmOrder.getId());
     }
 
+    @Test
+    @DisplayName("station별로 부분 접수하면 해당 station 메뉴만 CONFIRMED로 전환되고, 다른 station 메뉴는 영향받지 않는다")
+    void confirmOrderItemsByStation_onlyAffectsThatStation() {
+        OrderResponse placed = orderService.placeOrder(tableId, 1L,
+                placeOrderRequest(List.of(menuId, otherStationMenuId)));
+
+        OrderResponse afterConfirm = orderService.confirmOrderItemsByStation(placed.getId(), 1L);
+
+        assertThat(afterConfirm.getStatus()).isEqualTo(OrderStatus.PENDING); // station 2 메뉴가 아직 PENDING
+        assertThat(itemFor(afterConfirm, menuId).getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+        assertThat(itemFor(afterConfirm, otherStationMenuId).getStatus()).isEqualTo(OrderStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("station별로 부분 완료 처리하면 해당 station 메뉴만 COMPLETED로 전환된다")
+    void completeOrderItemsByStation_onlyCompletesThatStation() {
+        OrderResponse placed = orderService.placeOrder(tableId, 1L,
+                placeOrderRequest(List.of(menuId, otherStationMenuId)));
+        orderService.confirmOrderItemsByStation(placed.getId(), 1L);
+        orderService.confirmOrderItemsByStation(placed.getId(), 2L);
+
+        OrderResponse afterComplete = orderService.completeOrderItemsByStation(placed.getId(), 1L);
+
+        assertThat(afterComplete.getStatus()).isEqualTo(OrderStatus.CONFIRMED); // station 2 메뉴는 아직 CONFIRMED
+        assertThat(itemFor(afterComplete, menuId).getStatus()).isEqualTo(OrderStatus.COMPLETED);
+        assertThat(itemFor(afterComplete, otherStationMenuId).getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+    }
+
+    @Test
+    @DisplayName("한 station이 재료 소진으로 부분 취소해도 다른 station 메뉴는 그대로 접수할 수 있고, 취소된 메뉴 금액은 총액에서 빠진다")
+    void cancelOrderItemsByStation_doesNotAffectOtherStation_andAdjustsTotalPrice() {
+        OrderResponse placed = orderService.placeOrder(tableId, 1L,
+                placeOrderRequest(List.of(menuId, otherStationMenuId)));
+        int originalTotal = placed.getTotalPrice();
+
+        OrderResponse afterCancel = orderService.cancelOrderItemsByStation(placed.getId(), 2L);
+
+        assertThat(afterCancel.getTotalPrice()).isEqualTo(originalTotal - 1990);
+        assertThat(afterCancel.getStatus()).isEqualTo(OrderStatus.PENDING); // station 1 메뉴는 여전히 PENDING
+        assertThat(itemFor(afterCancel, otherStationMenuId).getStatus()).isEqualTo(OrderStatus.CANCELLED);
+
+        OrderResponse afterConfirmStation1 = orderService.confirmOrderItemsByStation(placed.getId(), 1L);
+        assertThat(afterConfirmStation1.getStatus()).isEqualTo(OrderStatus.CONFIRMED); // 취소된 메뉴는 계산에서 제외
+    }
+
+    @Test
+    @DisplayName("CONFIRMED 상태였던 메뉴를 station이 부분 취소하면 재고가 복구된다")
+    void cancelOrderItemsByStation_restoresStock_whenWasConfirmed() {
+        OrderResponse placed = orderService.placeOrder(tableId, 1L, placeOrderRequest(limitedStockMenuId, 2));
+        orderService.confirmOrderItemsByStation(placed.getId(), 1L);
+        assertThat(menuRepository.findById(limitedStockMenuId).orElseThrow().getStockCount()).isEqualTo(3);
+
+        orderService.cancelOrderItemsByStation(placed.getId(), 1L);
+
+        assertThat(menuRepository.findById(limitedStockMenuId).orElseThrow().getStockCount()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("이미 부분 취소된 station 메뉴가 있어도 전체 확정은 나머지 메뉴만 확정하고 취소된 메뉴는 그대로 둔다")
+    void confirmOrder_skipsAlreadyCancelledStationItems() {
+        OrderResponse placed = orderService.placeOrder(tableId, 1L,
+                placeOrderRequest(List.of(menuId, otherStationMenuId)));
+        orderService.cancelOrderItemsByStation(placed.getId(), 2L);
+
+        OrderResponse afterConfirm = orderService.confirmOrder(placed.getId());
+
+        assertThat(afterConfirm.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+        assertThat(itemFor(afterConfirm, menuId).getStatus()).isEqualTo(OrderStatus.CONFIRMED);
+        assertThat(itemFor(afterConfirm, otherStationMenuId).getStatus()).isEqualTo(OrderStatus.CANCELLED);
+    }
+
+    private OrderItemResponse itemFor(OrderResponse order, Long menuId) {
+        return order.getItems().stream()
+                .filter(item -> item.getMenuId().equals(menuId))
+                .findFirst()
+                .orElseThrow();
+    }
+
     private PlaceOrderRequest placeOrderRequest(Long menuId, int quantity) {
         PlaceOrderRequest req = new PlaceOrderRequest();
         setField(req, "idempotencyKey", UUID.randomUUID().toString());
@@ -140,6 +230,20 @@ class OrderServiceTest {
         setField(item, "menuId", menuId);
         setField(item, "quantity", quantity);
         setField(req, "items", List.of(item));
+        return req;
+    }
+
+    private PlaceOrderRequest placeOrderRequest(List<Long> menuIds) {
+        PlaceOrderRequest req = new PlaceOrderRequest();
+        setField(req, "idempotencyKey", UUID.randomUUID().toString());
+
+        List<OrderItemRequest> items = menuIds.stream().map(id -> {
+            OrderItemRequest item = new OrderItemRequest();
+            setField(item, "menuId", id);
+            setField(item, "quantity", 1);
+            return item;
+        }).toList();
+        setField(req, "items", items);
         return req;
     }
 

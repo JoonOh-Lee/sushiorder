@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.order.dto;
 
 import com.joonoh.sushiorder.domain.order.entity.OrderItem;
+import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,6 +14,8 @@ public class OrderItemResponse {
     private int unitPrice;
     private int quantity;
     private int subtotal;
+    private Long stationId;
+    private OrderStatus status;
 
     public static OrderItemResponse from(OrderItem item) {
         return OrderItemResponse.builder()
@@ -22,6 +25,8 @@ public class OrderItemResponse {
                 .unitPrice(item.getUnitPrice())
                 .quantity(item.getQuantity())
                 .subtotal(item.getSubtotal())
+                .stationId(item.getStationId())
+                .status(item.getStatus())
                 .build();
     }
 }

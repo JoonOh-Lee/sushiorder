@@ -1,6 +1,7 @@
 package com.joonoh.sushiorder.domain.restauranttable.service;
 
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableCreateRequest;
+import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTablePositionRequest;
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
@@ -66,6 +67,14 @@ public class RestaurantTableService {
     @Transactional
     public void cancelReservation(Long id) {
         findTableOrThrow(id).cancelReservation();
+    }
+
+    /** 매장 평면도 위치/크기 수정 — ADMIN 전용 */
+    @Transactional
+    public RestaurantTableResponse updatePosition(Long id, RestaurantTablePositionRequest request) {
+        RestaurantTable table = findTableOrThrow(id);
+        table.updatePosition(request.getX(), request.getY(), request.getWidth(), request.getHeight());
+        return RestaurantTableResponse.from(table);
     }
 
     private RestaurantTable findTableOrThrow(Long id) {

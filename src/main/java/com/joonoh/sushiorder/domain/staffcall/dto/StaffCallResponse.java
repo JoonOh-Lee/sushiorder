@@ -15,6 +15,7 @@ public class StaffCallResponse {
     private Long tableId;
     private Long sessionId;
     private CallType type;
+    private String itemName;
     private CallStatus status;
     private LocalDateTime createdAt;
 
@@ -24,6 +25,7 @@ public class StaffCallResponse {
                 .tableId(call.getTableId())
                 .sessionId(call.getSessionId())
                 .type(call.getType())
+                .itemName(call.getItemName())
                 .status(call.getStatus())
                 .createdAt(call.getCreatedAt())
                 .build();

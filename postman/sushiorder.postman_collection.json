@@ -175,11 +175,11 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/menu?category=SUSHI&keyword=&stationId={{stationId}}&activeOnly=true",
+              "raw": "{{baseUrl}}/api/v1/menu?category=FRESH_SUSHI&keyword=&stationId={{stationId}}&activeOnly=true",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "menu"],
               "query": [
-                { "key": "category", "value": "SUSHI", "disabled": false },
+                { "key": "category", "value": "FRESH_SUSHI", "disabled": false },
                 { "key": "keyword", "value": "", "disabled": true },
                 { "key": "stationId", "value": "{{stationId}}", "disabled": true },
                 { "key": "activeOnly", "value": "true", "disabled": false }
@@ -237,7 +237,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"연어초밥\",\n  \"description\": \"신선한 연어초밥 2pcs\",\n  \"price\": 4500,\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/salmon.jpg\",\n  \"stockCount\": 50,\n  \"stationId\": {{stationId}}\n}"
+              "raw": "{\n  \"name\": \"연어초밥\",\n  \"description\": \"신선한 연어초밥 2pcs\",\n  \"price\": 4500,\n  \"category\": \"FRESH_SUSHI\",\n  \"imageUrl\": \"https://example.com/salmon.jpg\",\n  \"stockCount\": 50,\n  \"stationId\": {{stationId}}\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/menu", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu"] }
           }
@@ -249,7 +249,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"광어초밥\",\n  \"description\": \"신선한 광어초밥 2pcs\",\n  \"category\": \"SUSHI\",\n  \"imageUrl\": \"https://example.com/flounder.jpg\"\n}"
+              "raw": "{\n  \"name\": \"광어초밥\",\n  \"description\": \"신선한 광어초밥 2pcs\",\n  \"category\": \"FRESH_SUSHI\",\n  \"imageUrl\": \"https://example.com/flounder.jpg\"\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}"] }
           }
@@ -346,15 +346,15 @@
       ]
     },
     {
-      "name": "Order (Admin)",
-      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "name": "Order (Staff)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
       "item": [
         {
           "name": "Active Orders By Table",
           "request": {
             "method": "GET",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/table/{{tableId}}/active", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "table", "{{tableId}}", "active"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/table/{{tableId}}/active", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "table", "{{tableId}}", "active"] }
           }
         },
         {
@@ -363,10 +363,43 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/order?status=PENDING",
+              "raw": "{{baseUrl}}/api/v1/staff/order?status=PENDING",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "admin", "order"],
+              "path": ["api", "v1", "staff", "order"],
               "query": [{ "key": "status", "value": "PENDING" }]
+            }
+          }
+        },
+        {
+          "name": "List Orders By Status And Station",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/staff/order?status=CONFIRMED&stationId={{stationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "staff", "order"],
+              "query": [
+                { "key": "status", "value": "CONFIRMED" },
+                { "key": "stationId", "value": "{{stationId}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Orders By Multiple Statuses And Station (station board)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/staff/order?status=PENDING&status=CONFIRMED&stationId={{stationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "staff", "order"],
+              "query": [
+                { "key": "status", "value": "PENDING" },
+                { "key": "status", "value": "CONFIRMED" },
+                { "key": "stationId", "value": "{{stationId}}" }
+              ]
             }
           }
         },
@@ -375,7 +408,7 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "confirm"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "confirm"] }
           }
         },
         {
@@ -383,7 +416,7 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "complete"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "complete"] }
           }
         },
         {
@@ -391,7 +424,101 @@
           "request": {
             "method": "PATCH",
             "header": [],
-            "url": { "raw": "{{baseUrl}}/api/v1/admin/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "order", "{{orderId}}", "cancel"] }
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "cancel"] }
+          }
+        },
+        {
+          "name": "Confirm Order Items By Station (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/confirm", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "confirm"] }
+          }
+        },
+        {
+          "name": "Complete Order Items By Station (partial)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "complete"] }
+          }
+        },
+        {
+          "name": "Cancel Order Items By Station (partial, ex. 재료 소진)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/order/{{orderId}}/station/{{stationId}}/cancel", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "order", "{{orderId}}", "station", "{{stationId}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Call",
+      "item": [
+        {
+          "name": "Call Staff (Water Refill / Inquiry / Other)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Session-Token", "value": "{{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"WATER_REFILL\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "call"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('callId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Call Staff (Item Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Session-Token", "value": "{{sessionToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"ITEM_REQUEST\",\n  \"itemName\": \"장국추가\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "call"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Staff Call",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Requested Calls",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/call", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "call"] }
+          }
+        },
+        {
+          "name": "Resolve Call",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/call/{{callId}}/resolve", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "call", "{{callId}}", "resolve"] }
           }
         }
       ]
@@ -459,6 +586,148 @@
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/cancel-reservation", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "cancel-reservation"] }
           }
+        },
+        {
+          "name": "Update Table Position (floor plan)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 10.5,\n  \"y\": 20.0,\n  \"width\": 15.0,\n  \"height\": 15.0\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/position", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "position"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Table",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Tables (floor plan, STAFF+ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/table", "host": ["{{baseUrl}}"], "path": ["api", "v1", "table"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Floor Plan Element (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List Elements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element"] }
+          }
+        },
+        {
+          "name": "Get Element Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element/{{floorPlanElementId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element", "{{floorPlanElementId}}"] }
+          }
+        },
+        {
+          "name": "Create Element",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"KITCHEN\",\n  \"label\": \"주방\",\n  \"x\": 42,\n  \"y\": 42,\n  \"width\": 16,\n  \"height\": 16\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element"] }
+          }
+        },
+        {
+          "name": "Update Element Position",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 30,\n  \"y\": 30,\n  \"width\": 40,\n  \"height\": 40\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element/{{floorPlanElementId}}/position", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element", "{{floorPlanElementId}}", "position"] }
+          }
+        },
+        {
+          "name": "Update Element Type/Label",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"RAIL\",\n  \"label\": \"회전초밥 레일\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element/{{floorPlanElementId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element", "{{floorPlanElementId}}"] }
+          }
+        },
+        {
+          "name": "Delete Element",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/floor-plan-element/{{floorPlanElementId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "floor-plan-element", "{{floorPlanElementId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Floor Plan Element",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Elements (floor plan, STAFF+ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/floor-plan-element", "host": ["{{baseUrl}}"], "path": ["api", "v1", "floor-plan-element"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rail Segment",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
+      "item": [
+        {
+          "name": "List Segments (floor plan, STAFF+ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/rail-segment", "host": ["{{baseUrl}}"], "path": ["api", "v1", "rail-segment"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rail Segment (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Activate Segment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/{{railSegmentId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "{{railSegmentId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Segment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/{{railSegmentId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "{{railSegmentId}}", "deactivate"] }
+          }
         }
       ]
     },
@@ -519,6 +788,102 @@
             "method": "PATCH",
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/v1/admin/session/{{sessionId}}/close", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "session", "{{sessionId}}", "close"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice",
+      "item": [
+        {
+          "name": "List Active Notices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "notice"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List All Notices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice"] }
+          }
+        },
+        {
+          "name": "Create Notice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"영업시간 안내\",\n  \"content\": \"영업시간은 매일 11:30~22:00입니다.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('noticeId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"영업시간 변경 안내\",\n  \"content\": \"영업시간이 11:00~21:00으로 변경되었습니다.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}"] }
+          }
+        },
+        {
+          "name": "Pin Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/pin", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "pin"] }
+          }
+        },
+        {
+          "name": "Unpin Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/unpin", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "unpin"] }
+          }
+        },
+        {
+          "name": "Activate Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "activate"] }
+          }
+        },
+        {
+          "name": "Deactivate Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "deactivate"] }
           }
         }
       ]

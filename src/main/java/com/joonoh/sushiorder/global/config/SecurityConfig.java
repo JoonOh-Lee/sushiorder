@@ -43,10 +43,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/staff/**").authenticated()  // 본인 station 조회/지정 — 직원이면 누구나
                         .requestMatchers("/api/v1/station/**").authenticated()
+                        .requestMatchers("/api/v1/table/**").authenticated()  // 매장 평면도 조회 — 직원이면 누구나 (위치 수정은 /admin/table 쪽 ADMIN 전용)
+                        .requestMatchers("/api/v1/floor-plan-element/**").authenticated()  // 평면도 고정 시설(주방/레일 등) 조회 — 직원이면 누구나
+                        .requestMatchers("/api/v1/rail-segment/**").authenticated()  // 레일 구간 조회 — 직원이면 누구나 (on/off는 /admin/rail-segment 쪽 ADMIN 전용)
                         .requestMatchers("/api/v1/menu/**").permitAll()
+                        .requestMatchers("/api/v1/notice/**").permitAll()  // 손님/직원 공용 공지 조회 — 인증 불필요
                         .requestMatchers("/api/v1/order/**").permitAll()  // SessionTokenInterceptor가 MVC 계층에서 QR 토큰 검증
                         .requestMatchers("/api/v1/session/**").permitAll()  // 세션 생성/본인 세션 조회는 토큰 발급 전이라 인증 불필요
                         .requestMatchers("/api/v1/call/**").permitAll()  // 손님 직원 호출 — SessionTokenInterceptor가 검증
+                        .requestMatchers("/api/v1/ws/**").permitAll()  // STOMP 핸드셰이크 — 인증은 StompAuthChannelInterceptor가 CONNECT 프레임에서 처리
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(handling -> handling

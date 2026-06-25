@@ -7,9 +7,12 @@ import com.joonoh.sushiorder.domain.order.dto.OrderItemRequest;
 import com.joonoh.sushiorder.domain.order.dto.OrderResponse;
 import com.joonoh.sushiorder.domain.order.dto.PlaceOrderRequest;
 import com.joonoh.sushiorder.domain.order.entity.Order;
+import com.joonoh.sushiorder.domain.order.entity.OrderItem;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
 import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.order.repository.OrderRepository;
+import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
+import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -20,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,6 +34,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final MenuRepository menuRepository;
+    private final RestaurantTableRepository restaurantTableRepository;
 
     /**
      * 주문 접수 (손님 → PENDING 상태로 저장)
@@ -45,7 +51,7 @@ public class OrderService {
                 .map(existing -> {
                     log.info("중복 주문 요청 감지 — 기존 주문 반환. key={}, orderId={}",
                             request.getIdempotencyKey(), existing.getId());
-                    return OrderResponse.from(existing);
+                    return toResponse(existing);
                 })
                 .orElseGet(() -> createNewOrder(tableId, sessionId, request));
     }
@@ -71,7 +77,8 @@ public class OrderService {
                     menu.getId(),
                     menu.getName(),
                     menu.getPrice(),
-                    itemReq.getQuantity()
+                    itemReq.getQuantity(),
+                    menu.getStationId()
             );
         }
 
@@ -79,7 +86,7 @@ public class OrderService {
         log.info("새 주문 생성 — orderId={}, tableId={}, total={}",
                 saved.getId(), saved.getTableId(), saved.getTotalPrice());
 
-        return OrderResponse.from(saved);
+        return toResponse(saved);
     }
 
     /**
@@ -99,16 +106,11 @@ public class OrderService {
     )
     public OrderResponse confirmOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
-        order.confirm();
-
-        for (var item : order.getItems()) {
-            Menu menu = menuRepository.findById(item.getMenuId())
-                    .orElseThrow(() -> new MenuNotFoundException(item.getMenuId()));
-            menu.decreaseStock(item.getQuantity());
-        }
+        List<OrderItem> confirmedItems = order.confirm();
+        deductStock(confirmedItems);
 
         log.info("주문 확정 — orderId={}", orderId);
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     @Recover
@@ -127,6 +129,24 @@ public class OrderService {
         throw new IllegalStateException("주문 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
 
+    @Recover
+    @Transactional(noRollbackFor = IllegalStateException.class)
+    public OrderResponse recoverFromStationConfirmFailure(Exception e, Long orderId, Long stationId) {
+        log.error("station별 접수 재시도 한계 초과 — orderId={}, stationId={}, cause={}", orderId, stationId, e.getMessage());
+
+        // 롤백되어 PENDING 상태로 남아있는 해당 station 메뉴들을 CANCELLED로 정리
+        orderRepository.findById(orderId).ifPresent(order -> {
+            try {
+                order.cancelItemsByStation(stationId);
+                log.info("재시도 실패 후 station 메뉴 자동 취소 — orderId={}, stationId={}", orderId, stationId);
+            } catch (IllegalStateException ignore) {
+                // 취소할 PENDING/CONFIRMED 메뉴가 이미 없는 경우 — 무시
+            }
+        });
+
+        throw new IllegalStateException("주문 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    }
+
     /**
      * 주문 완료 (서빙됨)
      */
@@ -134,30 +154,83 @@ public class OrderService {
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
         order.complete();
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     /**
-     * 주문 취소
-     * CONFIRMED 상태였다면 재고 복구도 같이 수행.
+     * 주문 전체 취소 — 취소 가능한(PENDING/CONFIRMED) 메뉴만 취소되고,
+     * 이미 서빙 완료된 메뉴는 그대로 남는다. CONFIRMED였던 메뉴는 재고 복구.
      */
     @Transactional
     public OrderResponse cancelOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
-        boolean wasConfirmed = order.getStatus() == com.joonoh.sushiorder.domain.order.entity.OrderStatus.CONFIRMED;
+        List<OrderItem> needStockRestore = order.cancel();
+        restoreStock(needStockRestore);
 
-        order.cancel();
+        log.info("주문 취소 — orderId={}, 재고 복구 {}건", orderId, needStockRestore.size());
+        return toResponse(order);
+    }
 
-        if (wasConfirmed) {
-            for (var item : order.getItems()) {
-                Menu menu = menuRepository.findById(item.getMenuId())
-                        .orElseThrow(() -> new MenuNotFoundException(item.getMenuId()));
-                menu.restoreStock(item.getQuantity());
-            }
-            log.info("CONFIRMED 주문 취소 — 재고 복구 완료. orderId={}", orderId);
+    /**
+     * station별 부분 접수 — 해당 station이 담당하는 메뉴 중 PENDING인 것만 CONFIRMED로 전환하고 재고 차감.
+     * 다른 station 메뉴는 영향받지 않는다.
+     */
+    @Transactional
+    @Retryable(
+            retryFor = {
+                    OptimisticLockingFailureException.class,
+                    org.springframework.orm.jpa.JpaSystemException.class
+            },
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 50, multiplier = 1.5)
+    )
+    public OrderResponse confirmOrderItemsByStation(Long orderId, Long stationId) {
+        Order order = findOrderOrThrow(orderId);
+        List<OrderItem> confirmedItems = order.confirmItemsByStation(stationId);
+        deductStock(confirmedItems);
+
+        log.info("station별 주문 접수 — orderId={}, stationId={}, {}건", orderId, stationId, confirmedItems.size());
+        return toResponse(order);
+    }
+
+    /** station별 부분 완료 — 해당 station이 담당하는 메뉴 중 CONFIRMED인 것만 COMPLETED로 전환 */
+    @Transactional
+    public OrderResponse completeOrderItemsByStation(Long orderId, Long stationId) {
+        Order order = findOrderOrThrow(orderId);
+        List<OrderItem> completedItems = order.completeItemsByStation(stationId);
+
+        log.info("station별 주문 완료 — orderId={}, stationId={}, {}건", orderId, stationId, completedItems.size());
+        return toResponse(order);
+    }
+
+    /**
+     * station별 부분 취소 (ex. 재료 소진) — 해당 station이 담당하는 메뉴 중 아직 완료/취소되지 않은 것만 취소.
+     * 다른 station 메뉴는 그대로 진행되고, 취소된 메뉴 금액은 주문 총액에서 제외된다.
+     */
+    @Transactional
+    public OrderResponse cancelOrderItemsByStation(Long orderId, Long stationId) {
+        Order order = findOrderOrThrow(orderId);
+        List<OrderItem> needStockRestore = order.cancelItemsByStation(stationId);
+        restoreStock(needStockRestore);
+
+        log.info("station별 주문 취소 — orderId={}, stationId={}, 재고 복구 {}건", orderId, stationId, needStockRestore.size());
+        return toResponse(order);
+    }
+
+    private void deductStock(List<OrderItem> items) {
+        for (OrderItem item : items) {
+            Menu menu = menuRepository.findById(item.getMenuId())
+                    .orElseThrow(() -> new MenuNotFoundException(item.getMenuId()));
+            menu.decreaseStock(item.getQuantity());
         }
+    }
 
-        return OrderResponse.from(order);
+    private void restoreStock(List<OrderItem> items) {
+        for (OrderItem item : items) {
+            Menu menu = menuRepository.findById(item.getMenuId())
+                    .orElseThrow(() -> new MenuNotFoundException(item.getMenuId()));
+            menu.restoreStock(item.getQuantity());
+        }
     }
 
     // ===== 조회 메서드 =====
@@ -168,19 +241,15 @@ public class OrderService {
         if (!order.getSessionId().equals(sessionId)) {
             throw new OrderNotFoundException(orderId);
         }
-        return OrderResponse.from(order);
+        return toResponse(order);
     }
 
     public List<OrderResponse> getActiveOrdersByTableId(Long tableId) {
-        return orderRepository.findActiveOrdersByTableId(tableId).stream()
-                .map(OrderResponse::from)
-                .toList();
+        return toResponses(orderRepository.findActiveOrdersByTableId(tableId));
     }
 
     public List<OrderResponse> getOrdersBySessionId(Long sessionId) {
-        return orderRepository.findBySessionId(sessionId).stream()
-                .map(OrderResponse::from)
-                .toList();
+        return toResponses(orderRepository.findBySessionId(sessionId));
     }
 
     private Order findOrderOrThrow(Long orderId) {
@@ -188,9 +257,29 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
-    public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
-        return orderRepository.findByStatus(status).stream()
-                .map(OrderResponse::from)
+    /** stationId가 주어지면 해당 station이 담당하는 메뉴가 하나라도 포함된 주문만 반환. statuses는 OR 조건 (ex. PENDING+CONFIRMED 동시 조회) */
+    public List<OrderResponse> getOrdersByStatus(List<OrderStatus> statuses, Long stationId) {
+        List<Order> orders = stationId != null
+                ? orderRepository.findByStatusInAndStationId(statuses, stationId)
+                : orderRepository.findByStatusIn(statuses);
+        return toResponses(orders);
+    }
+
+    /** 테이블 조회는 응답 보강용일 뿐 — 못 찾아도 주문 처리 자체는 막지 않는다 */
+    private OrderResponse toResponse(Order order) {
+        RestaurantTable table = restaurantTableRepository.findById(order.getTableId()).orElse(null);
+        return OrderResponse.from(order, table);
+    }
+
+    /** N+1 방지 — 주문들의 tableId를 모아 한 번에 조회 후 매핑 */
+    private List<OrderResponse> toResponses(List<Order> orders) {
+        Map<Long, RestaurantTable> tablesById = restaurantTableRepository
+                .findAllById(orders.stream().map(Order::getTableId).distinct().toList())
+                .stream()
+                .collect(Collectors.toMap(RestaurantTable::getId, t -> t));
+
+        return orders.stream()
+                .map(order -> OrderResponse.from(order, tablesById.get(order.getTableId())))
                 .toList();
     }
 }

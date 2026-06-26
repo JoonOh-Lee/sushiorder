@@ -12,6 +12,7 @@ public class StaffMeResponse {
     private String username;
     private StaffRole role;
     private Long stationId;
+    private boolean onDuty;
 
     public static StaffMeResponse from(Staff staff) {
         return StaffMeResponse.builder()
@@ -19,6 +20,7 @@ public class StaffMeResponse {
                 .username(staff.getUsername())
                 .role(staff.getRole())
                 .stationId(staff.getStationId())
+                .onDuty(staff.isOnDuty())
                 .build();
     }
 }

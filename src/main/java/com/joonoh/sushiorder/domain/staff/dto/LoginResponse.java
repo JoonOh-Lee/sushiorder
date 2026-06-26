@@ -11,4 +11,5 @@ public class LoginResponse {
     private String username;
     private StaffRole role;
     private Long stationId;
+    private boolean onDuty;
 }

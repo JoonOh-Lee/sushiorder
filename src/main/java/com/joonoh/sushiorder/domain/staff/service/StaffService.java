@@ -35,6 +35,7 @@ public class StaffService {
         }
 
         staff.resetDuty();
+        staff.assignStation(null); // 로그인마다 스테이션 재선택 강제
 
         String token = jwtTokenProvider.createToken(staff.getUsername(), staff.getRole());
 
@@ -68,6 +69,12 @@ public class StaffService {
     public StaffMeResponse setDuty(String username, boolean on) {
         Staff staff = findStaffOrThrow(username);
         if (on) {
+            if (staff.getStationId() == null) {
+                throw new IllegalArgumentException("스테이션을 먼저 선택해주세요.");
+            }
+            if (staffRepository.existsByStationIdAndOnDutyTrueAndIdNot(staff.getStationId(), staff.getId())) {
+                throw new IllegalArgumentException("이미 다른 직원이 해당 스테이션에서 근무 중입니다.");
+            }
             staff.startDuty();
         } else {
             staff.endDuty();

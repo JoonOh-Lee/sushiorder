@@ -11,13 +11,19 @@ public class StationResponse {
     private String name;
     private int sortOrder;
     private boolean active;
+    private boolean hasOnDutyStaff;
 
-    public static StationResponse from(Station station){
+    public static StationResponse from(Station station) {
+        return from(station, false);
+    }
+
+    public static StationResponse from(Station station, boolean hasOnDutyStaff) {
         return StationResponse.builder()
                 .id(station.getId())
                 .name(station.getName())
                 .sortOrder(station.getSortOrder())
                 .active(station.isActive())
+                .hasOnDutyStaff(hasOnDutyStaff)
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.joonoh.sushiorder.domain.station.service;
 
+import com.joonoh.sushiorder.domain.staff.repository.StaffRepository;
 import com.joonoh.sushiorder.domain.station.dto.*;
 import com.joonoh.sushiorder.domain.station.entity.Station;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -18,19 +18,20 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class StationService {
     private final StationRepository stationRepository;
+    private final StaffRepository staffRepository;
 
     public List<StationResponse> getActiveStations() {
-        return stationRepository.findByActiveTrueOrderBySortOrderAsc() // List<Station>
-                .stream() // Stream<Station>
-                .map(StationResponse::from) // Stream<StationResponse>
-                .toList(); //List<StationResponse>
+        return stationRepository.findByActiveTrueOrderBySortOrderAsc()
+                .stream()
+                .map(s -> StationResponse.from(s, staffRepository.existsByStationIdAndOnDutyTrue(s.getId())))
+                .toList();
     }
 
     public List<StationResponse> getAllStations() {
-        return stationRepository.findAllByOrderBySortOrderAsc() // List<Station>
-                .stream() // Stream<Station>
-                .map(StationResponse::from) // Stream<StationResponse>
-                .toList(); //List<StationResponse>
+        return stationRepository.findAllByOrderBySortOrderAsc()
+                .stream()
+                .map(s -> StationResponse.from(s, staffRepository.existsByStationIdAndOnDutyTrue(s.getId())))
+                .toList();
     }
 
     @Transactional

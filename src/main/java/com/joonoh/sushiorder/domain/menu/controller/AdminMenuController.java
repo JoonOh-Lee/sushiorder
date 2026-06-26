@@ -48,6 +48,13 @@ public class AdminMenuController {
         return ApiResponse.success();
     }
 
+    @PatchMapping("/{id}/stock")
+    public ApiResponse<Void> setStock(@PathVariable Long id,
+                                      @RequestBody StockSetRequest request) {
+        menuService.setStockCount(id, request.getStockCount());
+        return ApiResponse.success();
+    }
+
     @PatchMapping("/{id}/activate")
     public ApiResponse<Void> activateMenu(@PathVariable Long id) {
         menuService.activateMenu(id);

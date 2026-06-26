@@ -303,6 +303,18 @@
           }
         },
         {
+          "name": "Set Stock (재고 직접 설정 / null=무제한)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCount\": 20\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/stock", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "stock"] }
+          }
+        },
+        {
           "name": "Activate Menu",
           "request": {
             "method": "PATCH",

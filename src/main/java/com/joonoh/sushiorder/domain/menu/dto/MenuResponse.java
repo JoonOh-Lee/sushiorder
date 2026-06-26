@@ -21,6 +21,7 @@ public class MenuResponse {
     private String allergyInfo;
     private Integer stockCount;
     private boolean limitedStock;
+    private boolean soldOut;
     private int likeCount;
     private int dislikeCount;
     private boolean active;
@@ -38,6 +39,7 @@ public class MenuResponse {
                 .allergyInfo(menu.getAllergyInfo())
                 .stockCount(menu.getStockCount())
                 .limitedStock(menu.isLimitedStock())
+                .soldOut(menu.isLimitedStock() && menu.getStockCount() == 0)
                 .likeCount(menu.getLikeCount())
                 .dislikeCount(menu.getDislikeCount())
                 .active(menu.isActive())

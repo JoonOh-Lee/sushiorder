@@ -96,6 +96,11 @@ public class Menu extends BaseTimeEntity {
         this.stockCount -= quantity;
     }
 
+    /** 재고 직접 설정 — null이면 무제한으로 전환 */
+    public void setStock(Integer stockCount) {
+        this.stockCount = stockCount;
+    }
+
     /** 재고 복구 — 주문 취소 시 호출 */
     public void restoreStock(int quantity) {
         if (!isLimitedStock()) {

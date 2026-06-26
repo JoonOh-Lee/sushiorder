@@ -25,6 +25,7 @@ public class StaffService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Transactional
     public LoginResponse login(LoginRequest request) {
         Staff staff = staffRepository.findByUsername(request.getUsername())
                 .orElseThrow(InvalidCredentialsException::new);
@@ -33,6 +34,8 @@ public class StaffService {
             throw new InvalidCredentialsException();
         }
 
+        staff.resetDuty();
+
         String token = jwtTokenProvider.createToken(staff.getUsername(), staff.getRole());
 
         return LoginResponse.builder()
@@ -40,6 +43,7 @@ public class StaffService {
                 .username(staff.getUsername())
                 .role(staff.getRole())
                 .stationId(staff.getStationId())
+                .onDuty(false)
                 .build();
     }
 
@@ -57,6 +61,17 @@ public class StaffService {
         }
 
         staff.assignStation(stationId);
+        return StaffMeResponse.from(staff);
+    }
+
+    @Transactional
+    public StaffMeResponse setDuty(String username, boolean on) {
+        Staff staff = findStaffOrThrow(username);
+        if (on) {
+            staff.startDuty();
+        } else {
+            staff.endDuty();
+        }
         return StaffMeResponse.from(staff);
     }
 

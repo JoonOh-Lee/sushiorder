@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/staff")
 @RequiredArgsConstructor
@@ -28,5 +30,14 @@ public class StaffController {
             Authentication authentication,
             @Valid @RequestBody AssignStationRequest request) {
         return ApiResponse.success(staffService.assignStation(authentication.getName(), request.getStationId()));
+    }
+
+    /** 근무 시작/종료 토글 — { "on": true/false } */
+    @PatchMapping("/me/duty")
+    public ApiResponse<StaffMeResponse> setDuty(
+            Authentication authentication,
+            @RequestBody Map<String, Boolean> body) {
+        boolean on = Boolean.TRUE.equals(body.get("on"));
+        return ApiResponse.success(staffService.setDuty(authentication.getName(), on));
     }
 }

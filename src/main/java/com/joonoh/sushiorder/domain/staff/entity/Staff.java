@@ -32,6 +32,9 @@ public class Staff extends BaseTimeEntity {
     @Column(name = "station_id")
     private Long stationId;
 
+    @Column(nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean onDuty = false;
+
     @Builder
     private Staff(String username, String encodedPassword, StaffRole role, Long stationId) {
         if (username == null || username.isBlank()) {
@@ -52,5 +55,18 @@ public class Staff extends BaseTimeEntity {
     /** 직원이 로그인 후 본인이 근무할 자리를 직접 지정 */
     public void assignStation(Long stationId) {
         this.stationId = stationId;
+    }
+
+    /** 로그인 시 이전 세션의 onDuty 상태를 초기화 */
+    public void resetDuty() {
+        this.onDuty = false;
+    }
+
+    public void startDuty() {
+        this.onDuty = true;
+    }
+
+    public void endDuty() {
+        this.onDuty = false;
     }
 }

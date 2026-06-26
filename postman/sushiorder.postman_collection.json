@@ -83,6 +83,30 @@
             },
             "url": { "raw": "{{baseUrl}}/api/v1/staff/me/station", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "me", "station"] }
           }
+        },
+        {
+          "name": "Start Duty (근무 시작)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"on\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/me/duty", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "me", "duty"] }
+          }
+        },
+        {
+          "name": "End Duty (근무 종료)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"on\": false\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/staff/me/duty", "host": ["{{baseUrl}}"], "path": ["api", "v1", "staff", "me", "duty"] }
+          }
         }
       ]
     },
@@ -276,6 +300,18 @@
               "raw": "{\n  \"quantity\": 20\n}"
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/restock", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "restock"] }
+          }
+        },
+        {
+          "name": "Set Stock (재고 직접 설정 / null=무제한)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stockCount\": 20\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/menu/{{menuId}}/stock", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "menu", "{{menuId}}", "stock"] }
           }
         },
         {

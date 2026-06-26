@@ -277,43 +277,42 @@ INSERT INTO staff (username, password, role, station_id, created_at, updated_at)
 -- 4. 손님 좌석(RestaurantTable) 시드
 --    COUNTER(다찌석, 1인용) 1~20번 / TABLE(테이블, 4인용) 1~3번
 --    table_number는 seat_type별로 따로 매겨진다 (seat_type+table_number 복합 unique)
---    x/y/width/height는 매장 평면도용 좌표(0~100 퍼센트). 라벨 글자수가 비슷해서 전부
---    10x10으로 통일. 가운데 주방+레일(floor_plan_element 시드 참고)을 한 바퀴 도는
+--    x/y/width/height는 매장 평면도용 좌표(0~100 퍼센트). 가운데 주방+레일(floor_plan_element
+--    시드 참고)을 한 바퀴 도는
 --    루프 형태로 배치 — 왼쪽 세로줄(다찌석 1→10, 아래→위), 위쪽 가로줄(테이블 1→3),
 --    오른쪽 세로줄(다찌석 11→20, 위→아래), 아래쪽은 입구/통로라 비워둠.
 -- ============================================
 INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, x, y, width, height, created_at, updated_at) VALUES
-    ('COUNTER', 1, 1, 'EMPTY', 20, 91, 10, 5, NOW(), NOW()),
-    ('COUNTER', 2, 1, 'EMPTY', 20, 82, 10, 5, NOW(), NOW()),
-    ('COUNTER', 3, 1, 'EMPTY', 20, 73, 10, 5, NOW(), NOW()),
-    ('COUNTER', 4, 1, 'EMPTY', 20, 64, 10, 5, NOW(), NOW()),
-    ('COUNTER', 5, 1, 'EMPTY', 20, 55, 10, 5, NOW(), NOW()),
-    ('COUNTER', 6, 1, 'EMPTY', 20, 46, 10, 5, NOW(), NOW()),
-    ('COUNTER', 7, 1, 'EMPTY', 20, 37, 10, 5, NOW(), NOW()),
-    ('COUNTER', 8, 1, 'EMPTY', 20, 28, 10, 5, NOW(), NOW()),
-    ('COUNTER', 9, 1, 'EMPTY', 20, 19, 10, 5, NOW(), NOW()),
-    ('COUNTER', 10, 1, 'EMPTY', 20, 10, 10, 5, NOW(), NOW()),
-    ('COUNTER', 11, 1, 'EMPTY', 70, 10, 10, 5, NOW(), NOW()),
-    ('COUNTER', 12, 1, 'EMPTY', 70, 19, 10, 5, NOW(), NOW()),
-    ('COUNTER', 13, 1, 'EMPTY', 70, 28, 10, 5, NOW(), NOW()),
-    ('COUNTER', 14, 1, 'EMPTY', 70, 37, 10, 5, NOW(), NOW()),
-    ('COUNTER', 15, 1, 'EMPTY', 70, 46, 10, 5, NOW(), NOW()),
-    ('COUNTER', 16, 1, 'EMPTY', 70, 55, 10, 5, NOW(), NOW()),
-    ('COUNTER', 17, 1, 'EMPTY', 70, 64, 10, 5, NOW(), NOW()),
-    ('COUNTER', 18, 1, 'EMPTY', 70, 73, 10, 5, NOW(), NOW()),
-    ('COUNTER', 19, 1, 'EMPTY', 70, 82, 10, 5, NOW(), NOW()),
-    ('COUNTER', 20, 1, 'EMPTY', 70, 91, 10, 5, NOW(), NOW()),
-    ('TABLE', 1, 4, 'EMPTY', 30, 0, 10, 5, NOW(), NOW()),
-    ('TABLE', 2, 4, 'EMPTY', 45, 0, 10, 5, NOW(), NOW()),
-    ('TABLE', 3, 4, 'EMPTY', 60, 0, 10, 5, NOW(), NOW());
+    ('COUNTER', 1, 1, 'EMPTY', 5, 91, 15, 5, NOW(), NOW()),
+    ('COUNTER', 2, 1, 'EMPTY', 5, 82, 15, 5, NOW(), NOW()),
+    ('COUNTER', 3, 1, 'EMPTY', 5, 73, 15, 5, NOW(), NOW()),
+    ('COUNTER', 4, 1, 'EMPTY', 5, 64, 15, 5, NOW(), NOW()),
+    ('COUNTER', 5, 1, 'EMPTY', 5, 55, 15, 5, NOW(), NOW()),
+    ('COUNTER', 6, 1, 'EMPTY', 5, 46, 15, 5, NOW(), NOW()),
+    ('COUNTER', 7, 1, 'EMPTY', 5, 37, 15, 5, NOW(), NOW()),
+    ('COUNTER', 8, 1, 'EMPTY', 5, 28, 15, 5, NOW(), NOW()),
+    ('COUNTER', 9, 1, 'EMPTY', 5, 19, 15, 5, NOW(), NOW()),
+    ('COUNTER', 10, 1, 'EMPTY', 5, 10, 15, 5, NOW(), NOW()),
+    ('COUNTER', 11, 1, 'EMPTY', 80, 10, 15, 5, NOW(), NOW()),
+    ('COUNTER', 12, 1, 'EMPTY', 80, 19, 15, 5, NOW(), NOW()),
+    ('COUNTER', 13, 1, 'EMPTY', 80, 28, 15, 5, NOW(), NOW()),
+    ('COUNTER', 14, 1, 'EMPTY', 80, 37, 15, 5, NOW(), NOW()),
+    ('COUNTER', 15, 1, 'EMPTY', 80, 46, 15, 5, NOW(), NOW()),
+    ('COUNTER', 16, 1, 'EMPTY', 80, 55, 15, 5, NOW(), NOW()),
+    ('COUNTER', 17, 1, 'EMPTY', 80, 64, 15, 5, NOW(), NOW()),
+    ('COUNTER', 18, 1, 'EMPTY', 80, 73, 15, 5, NOW(), NOW()),
+    ('COUNTER', 19, 1, 'EMPTY', 80, 82, 15, 5, NOW(), NOW()),
+    ('COUNTER', 20, 1, 'EMPTY', 80, 91, 15, 5, NOW(), NOW()),
+    ('TABLE', 1, 4, 'EMPTY', 30, 0, 15, 5, NOW(), NOW()),
+    ('TABLE', 2, 4, 'EMPTY', 45, 0, 15, 5, NOW(), NOW()),
+    ('TABLE', 3, 4, 'EMPTY', 60, 0, 15, 5, NOW(), NOW());
 
 -- ============================================
 -- 4-1. 매장 평면도 고정 시설(FloorPlanElement) 시드
 --    주방만 박스로 표현 — 레일은 더 이상 박스가 아니라 rail_segment 목록(아래 4-2)으로 표현한다.
 -- ============================================
 INSERT INTO floor_plan_element (type, label, x, y, width, height, created_at, updated_at) VALUES
-    ('KITCHEN', '주방', 35, 13, 30, 65, NOW(), NOW());
-
+    ('KITCHEN', '주방', 40, 13, 25, 65, NOW(), NOW());
 -- ============================================
 -- 4-2. 회전초밥 레일 구간(RailSegment) 시드
 --    좌석 사이를 잇는 구간 단위로 표현 — x/y는 안 저장하고 from/toTableId만 참조,

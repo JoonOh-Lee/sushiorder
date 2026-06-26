@@ -83,6 +83,11 @@ public class MenuService {
     }
 
     @Transactional
+    public void setStockCount(Long id, Integer stockCount) {
+        findMenuOrThrow(id).setStock(stockCount);
+    }
+
+    @Transactional
     public void activateMenu(Long id) {
         findMenuOrThrow(id).activate();
     }

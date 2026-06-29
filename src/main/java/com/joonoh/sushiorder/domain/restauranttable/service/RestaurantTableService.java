@@ -6,6 +6,9 @@ import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
+import com.joonoh.sushiorder.domain.session.entity.SessionStatus;
+import com.joonoh.sushiorder.domain.session.entity.TableSession;
+import com.joonoh.sushiorder.domain.session.repository.TableSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.List;
 public class RestaurantTableService {
 
     private final RestaurantTableRepository restaurantTableRepository;
+    private final TableSessionRepository tableSessionRepository;
 
     @Transactional
     public RestaurantTableResponse createTable(RestaurantTableCreateRequest request) {
@@ -53,10 +57,12 @@ public class RestaurantTableService {
         findTableOrThrow(id).occupy();
     }
 
-    /** 계산 완료 후 자리 비움 */
+    /** 계산 완료 후 자리 비움 — 연결된 활성 세션도 함께 CLOSED */
     @Transactional
     public void releaseTable(Long id) {
         findTableOrThrow(id).release();
+        tableSessionRepository.findByTableIdAndStatus(id, SessionStatus.ACTIVE)
+                .ifPresent(TableSession::close);
     }
 
     @Transactional

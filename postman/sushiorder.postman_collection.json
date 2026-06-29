@@ -634,6 +634,14 @@
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/position", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "position"] }
           }
+        },
+        {
+          "name": "Get Table QR Code (image/png)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/qr", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "qr"] }
+          }
         }
       ]
     },
@@ -749,6 +757,18 @@
       "name": "Rail Segment (Admin)",
       "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
       "item": [
+        {
+          "name": "Reorder Segments",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    { \"segmentId\": 3, \"sequenceOrder\": 1 },\n    { \"segmentId\": 1, \"sequenceOrder\": 2 },\n    { \"segmentId\": 2, \"sequenceOrder\": 3 }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/order", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "order"] }
+          }
+        },
         {
           "name": "Activate Segment",
           "request": {

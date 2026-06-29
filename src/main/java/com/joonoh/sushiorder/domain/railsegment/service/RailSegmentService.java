@@ -1,5 +1,6 @@
 package com.joonoh.sushiorder.domain.railsegment.service;
 
+import com.joonoh.sushiorder.domain.railsegment.dto.RailSegmentReorderRequest;
 import com.joonoh.sushiorder.domain.railsegment.dto.RailSegmentResponse;
 import com.joonoh.sushiorder.domain.railsegment.entity.RailSegment;
 import com.joonoh.sushiorder.domain.railsegment.exception.RailSegmentNotFoundException;
@@ -21,6 +22,13 @@ public class RailSegmentService {
         return railSegmentRepository.findAllByOrderBySequenceOrderAsc().stream()
                 .map(RailSegmentResponse::from)
                 .toList();
+    }
+
+    @Transactional
+    public void reorderSequence(RailSegmentReorderRequest request) {
+        for (RailSegmentReorderRequest.SegmentOrderItem item : request.getOrders()) {
+            findSegmentOrThrow(item.getSegmentId()).updateSequenceOrder(item.getSequenceOrder());
+        }
     }
 
     @Transactional

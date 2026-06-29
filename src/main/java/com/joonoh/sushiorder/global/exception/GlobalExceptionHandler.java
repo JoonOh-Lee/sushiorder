@@ -13,6 +13,7 @@ import com.joonoh.sushiorder.domain.staff.exception.StaffNotFoundException;
 import com.joonoh.sushiorder.domain.staffcall.exception.StaffCallNotFoundException;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
 import com.joonoh.sushiorder.global.common.ApiResponse;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -28,6 +29,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMenuNotFound(MenuNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailure(OptimisticLockingFailureException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.fail("다른 사용자가 이미 수정한 데이터입니다. 새로고침 후 다시 시도해주세요."));
     }
 
     @ExceptionHandler(IllegalStateException.class)

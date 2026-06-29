@@ -92,15 +92,11 @@ public class OrderService {
     /**
      * 주문 확정 (직원 → CONFIRMED 상태로 전환)
      *
-     * 이 시점에 재고 차감 발생. 동시에 두 주문이 같은 메뉴를 차감하려 하면
-     * Menu의 @Version 낙관적 락이 발동 → ObjectOptimisticLockingFailureException 발생.
+     * 재고 차감 시 Menu @Version 낙관적 락 충돌 → OptimisticLockingFailureException → 재시도.
      */
     @Transactional
     @Retryable(
-            retryFor = {
-                    OptimisticLockingFailureException.class,
-                    org.springframework.orm.jpa.JpaSystemException.class   // MariaDB 1020 에러도 잡힘
-            },
+            retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 5,
             backoff = @Backoff(delay = 50, multiplier = 1.5)
     )
@@ -177,10 +173,7 @@ public class OrderService {
      */
     @Transactional
     @Retryable(
-            retryFor = {
-                    OptimisticLockingFailureException.class,
-                    org.springframework.orm.jpa.JpaSystemException.class
-            },
+            retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 5,
             backoff = @Backoff(delay = 50, multiplier = 1.5)
     )

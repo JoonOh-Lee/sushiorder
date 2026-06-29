@@ -44,7 +44,7 @@ public class Menu extends BaseTimeEntity {
     @Column(name = "station_id")
     private Long stationId;
 
-//    @Version
+    @Version
     private Long version;
 
     @Builder

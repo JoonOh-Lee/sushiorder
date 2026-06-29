@@ -46,6 +46,10 @@ public class RailSegment extends BaseTimeEntity {
 
     // ===== 비즈니스 로직 =====
 
+    public void updateSequenceOrder(int sequenceOrder) {
+        this.sequenceOrder = sequenceOrder;
+    }
+
     /** 손님이 적을 때 꺼둔 구간을 다시 켠다 */
     public void activate() {
         if (this.active) {

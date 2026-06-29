@@ -271,7 +271,7 @@ INSERT INTO staff (username, password, role, station_id, active, created_at, upd
     ('staff_live', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
      (SELECT id FROM station WHERE name = '활어다이'), true, NOW(), NOW()),
     ('staff_back', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '뒷주방'), NOW(), NOW());
+     (SELECT id FROM station WHERE name = '뒷주방'), true, NOW(), NOW());
 
 -- ============================================
 -- 4. 손님 좌석(RestaurantTable) 시드

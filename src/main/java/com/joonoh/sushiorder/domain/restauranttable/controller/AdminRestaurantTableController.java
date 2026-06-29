@@ -5,8 +5,11 @@ import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTablePositionR
 import com.joonoh.sushiorder.domain.restauranttable.dto.RestaurantTableResponse;
 import com.joonoh.sushiorder.domain.restauranttable.service.RestaurantTableService;
 import com.joonoh.sushiorder.global.common.ApiResponse;
+import com.joonoh.sushiorder.global.common.QrCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.List;
 public class AdminRestaurantTableController {
 
     private final RestaurantTableService restaurantTableService;
+    private final QrCodeService qrCodeService;
 
     /** 테이블 현황 전체 조회 (직원 앱 메인 화면) */
     @GetMapping
@@ -58,6 +62,15 @@ public class AdminRestaurantTableController {
     public ApiResponse<Void> cancelReservation(@PathVariable Long id) {
         restaurantTableService.cancelReservation(id);
         return ApiResponse.success();
+    }
+
+    /** 테이블 QR 코드 이미지 다운로드 — 손님이 스캔하면 세션 시작 페이지로 이동 */
+    @GetMapping(value = "/{id}/qr", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getTableQr(@PathVariable Long id) {
+        restaurantTableService.getTable(id); // 테이블 존재 여부 확인
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(qrCodeService.generateTableQr(id));
     }
 
     /** 매장 평면도 위치/크기 수정 (POS 화면 커스텀 배치) — ADMIN 전용 */

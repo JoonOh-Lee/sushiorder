@@ -111,6 +111,85 @@
       ]
     },
     {
+      "name": "Staff (Admin)",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "List All Staff",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff"] }
+          }
+        },
+        {
+          "name": "Create Staff",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"hong01\",\n  \"password\": \"1234\",\n  \"role\": \"STAFF\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "    pm.environment.set('staffId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Change Role",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff/{{staffId}}/role", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff", "{{staffId}}", "role"] }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpass\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff/{{staffId}}/password", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff", "{{staffId}}", "password"] }
+          }
+        },
+        {
+          "name": "Deactivate Staff",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff/{{staffId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff", "{{staffId}}", "deactivate"] }
+          }
+        },
+        {
+          "name": "Activate Staff",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/staff/{{staffId}}/activate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "staff", "{{staffId}}", "activate"] }
+          }
+        }
+      ]
+    },
+    {
       "name": "Station",
       "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt}}" }] },
       "item": [
@@ -634,6 +713,14 @@
             },
             "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/position", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "position"] }
           }
+        },
+        {
+          "name": "Get Table QR Code (image/png)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/table/{{tableId}}/qr", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "table", "{{tableId}}", "qr"] }
+          }
         }
       ]
     },
@@ -749,6 +836,18 @@
       "name": "Rail Segment (Admin)",
       "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
       "item": [
+        {
+          "name": "Reorder Segments",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    { \"segmentId\": 3, \"sequenceOrder\": 1 },\n    { \"segmentId\": 1, \"sequenceOrder\": 2 },\n    { \"segmentId\": 2, \"sequenceOrder\": 3 }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/v1/admin/rail-segment/order", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "rail-segment", "order"] }
+          }
+        },
         {
           "name": "Activate Segment",
           "request": {

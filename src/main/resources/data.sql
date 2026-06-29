@@ -260,18 +260,18 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
 --    admin / admin1234 (ROLE_ADMIN, station 없음)
 --    station별 직원 5명 / staff1234 (ROLE_STAFF) — station은 출근 후 본인이 재배정 가능
 -- ============================================
-INSERT INTO staff (username, password, role, station_id, created_at, updated_at) VALUES
-    ('admin', '$2a$10$dkfi6Vcq77YzbrGX42Cvd.LVr4OzdHl0ijKnFIsg0OYcFkH79mZGG', 'ADMIN', NULL, NOW(), NOW()),
+INSERT INTO staff (username, password, role, station_id, active, created_at, updated_at) VALUES
+    ('admin', '$2a$10$dkfi6Vcq77YzbrGX42Cvd.LVr4OzdHl0ijKnFIsg0OYcFkH79mZGG', 'ADMIN', NULL, true, NOW(), NOW()),
     ('staff_aburi', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '아부리다이'), NOW(), NOW()),
+     (SELECT id FROM station WHERE name = '아부리다이'), true, NOW(), NOW()),
     ('staff_yukhwe', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '육회다이'), NOW(), NOW()),
+     (SELECT id FROM station WHERE name = '육회다이'), true, NOW(), NOW()),
     ('staff_tuna', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '참치다이'), NOW(), NOW()),
+     (SELECT id FROM station WHERE name = '참치다이'), true, NOW(), NOW()),
     ('staff_live', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '활어다이'), NOW(), NOW()),
+     (SELECT id FROM station WHERE name = '활어다이'), true, NOW(), NOW()),
     ('staff_back', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
-     (SELECT id FROM station WHERE name = '뒷주방'), NOW(), NOW());
+     (SELECT id FROM station WHERE name = '뒷주방'), true, NOW(), NOW());
 
 -- ============================================
 -- 4. 손님 좌석(RestaurantTable) 시드

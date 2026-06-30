@@ -313,7 +313,7 @@ INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, x, y,
 --    주방만 박스로 표현 — 레일은 더 이상 박스가 아니라 rail_segment 목록(아래 4-2)으로 표현한다.
 -- ============================================
 INSERT INTO floor_plan_element (type, label, x, y, width, height, created_at, updated_at) VALUES
-    ('KITCHEN', '주방', 40, 13, 25, 65, NOW(), NOW());
+    ('KITCHEN', '주방', 40, 13, 25, 80, NOW(), NOW());
 -- ============================================
 -- 4-2. 회전초밥 레일 구간(RailSegment) 시드
 --    좌석 사이를 잇는 구간 단위로 표현 — x/y는 안 저장하고 from/toTableId만 참조,

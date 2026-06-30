@@ -46,7 +46,7 @@ public class OrderService {
      * 이 시점에는 재고 차감 안 함. 직원이 confirm()해야 실제로 차감.
      * 같은 idempotencyKey로 재요청이 들어오면 기존 주문 그대로 반환.
      */
-    @Audit(action = AuditAction.ORDER_PLACED, entityType = "ORDER")
+    @Audit(action = AuditAction.ORDER_PLACED, entityType = "ORDER", tableIdArgIndex = 0)
     @Transactional
     public OrderResponse placeOrder(Long tableId, Long sessionId, PlaceOrderRequest request) {
         // 1. Idempotency 체크 — 중복 요청이면 기존 주문 반환
@@ -177,6 +177,7 @@ public class OrderService {
      * station별 부분 접수 — 해당 station이 담당하는 메뉴 중 PENDING인 것만 CONFIRMED로 전환하고 재고 차감.
      * 다른 station 메뉴는 영향받지 않는다.
      */
+    @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
@@ -193,6 +194,7 @@ public class OrderService {
     }
 
     /** station별 부분 완료 — 해당 station이 담당하는 메뉴 중 CONFIRMED인 것만 COMPLETED로 전환 */
+    @Audit(action = AuditAction.ORDER_COMPLETED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional
     public OrderResponse completeOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);
@@ -206,6 +208,7 @@ public class OrderService {
      * station별 부분 취소 (ex. 재료 소진) — 해당 station이 담당하는 메뉴 중 아직 완료/취소되지 않은 것만 취소.
      * 다른 station 메뉴는 그대로 진행되고, 취소된 메뉴 금액은 주문 총액에서 제외된다.
      */
+    @Audit(action = AuditAction.ORDER_CANCELLED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional
     public OrderResponse cancelOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);

@@ -3,7 +3,9 @@ package com.joonoh.sushiorder.domain.auditlog.service;
 import com.joonoh.sushiorder.domain.auditlog.dto.AuditLogResponse;
 import com.joonoh.sushiorder.domain.auditlog.entity.AuditAction;
 import com.joonoh.sushiorder.domain.auditlog.entity.AuditLog;
+import com.joonoh.sushiorder.domain.auditlog.entity.AuditResult;
 import com.joonoh.sushiorder.domain.auditlog.repository.AuditLogRepository;
+import com.joonoh.sushiorder.global.audit.AuditEntry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,18 +25,26 @@ public class AuditLogService {
      * AuditAspect에서 try/catch로 한 번 더 보호하고 있어 예외는 절대 바깥으로 나가지 않는다.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void record(String actorName, AuditAction action, String entityType, Long entityId, String description) {
+    public void record(AuditEntry entry) {
         auditLogRepository.save(AuditLog.builder()
-                .actorName(actorName)
-                .action(action)
-                .entityType(entityType)
-                .entityId(entityId)
-                .description(description)
+                .actorName(entry.getActorName())
+                .action(entry.getAction())
+                .result(entry.getResult())
+                .entityType(entry.getEntityType())
+                .entityId(entry.getEntityId())
+                .tableId(entry.getTableId())
+                .tableNumber(entry.getTableNumber())
+                .stationId(entry.getStationId())
+                .stationName(entry.getStationName())
+                .ipAddress(entry.getIpAddress())
+                .userAgent(entry.getUserAgent())
+                .metadata(entry.getMetadata())
+                .description(entry.getDescription())
                 .build());
     }
 
-    public Page<AuditLogResponse> search(AuditAction action, String actorName, Pageable pageable) {
-        return auditLogRepository.search(action, actorName, pageable)
+    public Page<AuditLogResponse> search(AuditAction action, AuditResult result, String actorName, Long tableId, Pageable pageable) {
+        return auditLogRepository.search(action, result, actorName, tableId, pageable)
                 .map(AuditLogResponse::from);
     }
 }

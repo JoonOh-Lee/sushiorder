@@ -1,5 +1,6 @@
 package com.joonoh.sushiorder.domain.staff.service;
 
+import com.joonoh.sushiorder.domain.auditlog.entity.AuditAction;
 import com.joonoh.sushiorder.domain.staff.dto.*;
 import com.joonoh.sushiorder.domain.staff.entity.Staff;
 import com.joonoh.sushiorder.domain.staff.entity.StaffRole;
@@ -8,6 +9,7 @@ import com.joonoh.sushiorder.domain.staff.exception.StaffNotFoundException;
 import com.joonoh.sushiorder.domain.staff.repository.StaffRepository;
 import com.joonoh.sushiorder.domain.station.exception.StationNotFoundException;
 import com.joonoh.sushiorder.domain.station.repository.StationRepository;
+import com.joonoh.sushiorder.global.audit.Audit;
 import com.joonoh.sushiorder.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +28,7 @@ public class StaffService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Audit(action = AuditAction.STAFF_LOGIN, entityType = "STAFF")
     @Transactional
     public LoginResponse login(LoginRequest request) {
         Staff staff = staffRepository.findByUsername(request.getUsername())

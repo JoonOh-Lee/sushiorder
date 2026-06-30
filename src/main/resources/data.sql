@@ -261,16 +261,17 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
 --    station별 직원 5명 / staff1234 (ROLE_STAFF) — station은 출근 후 본인이 재배정 가능
 -- ============================================
 INSERT INTO staff (username, password, role, station_id, active, created_at, updated_at) VALUES
-    ('admin', '$2a$10$dkfi6Vcq77YzbrGX42Cvd.LVr4OzdHl0ijKnFIsg0OYcFkH79mZGG', 'ADMIN', NULL, true, NOW(), NOW()),
-    ('staff_aburi', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
+    ('관리자', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),
+    ('이준오', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),
+    ('아부리', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '아부리다이'), true, NOW(), NOW()),
-    ('staff_yukhwe', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
+    ('육회', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '육회다이'), true, NOW(), NOW()),
-    ('staff_tuna', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
+    ('참치', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '참치다이'), true, NOW(), NOW()),
-    ('staff_live', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
+    ('활어', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '활어다이'), true, NOW(), NOW()),
-    ('staff_back', '$2a$10$pzbYPSGnLNiueSxEp5THWu7OoQn90uvOWab71Bx/4mLWbzClDpY.u', 'STAFF',
+    ('뒷주방', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '뒷주방'), true, NOW(), NOW());
 
 -- ============================================
@@ -312,7 +313,7 @@ INSERT INTO restaurant_table (seat_type, table_number, seat_count, status, x, y,
 --    주방만 박스로 표현 — 레일은 더 이상 박스가 아니라 rail_segment 목록(아래 4-2)으로 표현한다.
 -- ============================================
 INSERT INTO floor_plan_element (type, label, x, y, width, height, created_at, updated_at) VALUES
-    ('KITCHEN', '주방', 40, 13, 25, 65, NOW(), NOW());
+    ('KITCHEN', '주방', 40, 13, 25, 80, NOW(), NOW());
 -- ============================================
 -- 4-2. 회전초밥 레일 구간(RailSegment) 시드
 --    좌석 사이를 잇는 구간 단위로 표현 — x/y는 안 저장하고 from/toTableId만 참조,

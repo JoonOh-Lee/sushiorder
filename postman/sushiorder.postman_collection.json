@@ -569,6 +569,44 @@
       ]
     },
     {
+      "name": "Order (Admin)",
+      "description": "일별 주문/매출 통계. ADMIN 전용.\n\nWebSocket 실시간 알림: STOMP endpoint ws://localhost:8080/api/v1/ws 에 adminJwt로 연결 후 /topic/staff/orders 구독 — 주문 생성/확정/완료/취소 시 OrderResponse가 브로드캐스트됩니다.",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Get Order Stats (오늘)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/order/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "order", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Order Stats (날짜 지정)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/order/stats?date=2026-06-30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "order", "stats"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-06-30",
+                  "description": "ISO 8601 날짜 (yyyy-MM-dd). 생략 시 오늘. 응답: totalOrders, totalRevenue, topMenus(TOP5), hourlyDistribution(0-23시)"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Call",
       "item": [
         {
@@ -1019,6 +1057,114 @@
             "method": "PATCH",
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/v1/admin/notice/{{noticeId}}/deactivate", "host": ["{{baseUrl}}"], "path": ["api", "v1", "admin", "notice", "{{noticeId}}", "deactivate"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Audit Log",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Get Audit Logs (전체)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (action 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?action=ORDER_CONFIRMED&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "action", "value": "ORDER_CONFIRMED", "description": "ORDER_PLACED | ORDER_CONFIRMED | ORDER_COMPLETED | ORDER_CANCELLED | TABLE_OCCUPIED | TABLE_RELEASED | STAFF_LOGIN" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (result 필터 - 실패만)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?result=FAILURE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "result", "value": "FAILURE", "description": "SUCCESS | FAILURE" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (tableId 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?tableId={{tableId}}&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "tableId", "value": "{{tableId}}", "description": "특정 테이블에서 발생한 모든 이벤트 조회" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (actorName 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?actorName=관리자&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "actorName", "value": "관리자", "description": "직원 username으로 필터링. 손님 행동 조회 시 이 파라미터를 제거하세요." },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (로그인 실패만)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?action=STAFF_LOGIN&result=FAILURE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "action", "value": "STAFF_LOGIN" },
+                { "key": "result", "value": "FAILURE" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
           }
         }
       ]

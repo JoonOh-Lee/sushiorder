@@ -5,6 +5,7 @@ import com.joonoh.sushiorder.domain.menu.exception.MenuNotFoundException;
 import com.joonoh.sushiorder.domain.menu.repository.MenuRepository;
 import com.joonoh.sushiorder.domain.order.dto.OrderItemRequest;
 import com.joonoh.sushiorder.domain.order.dto.OrderResponse;
+import com.joonoh.sushiorder.domain.order.dto.OrderStatsResponse;
 import com.joonoh.sushiorder.domain.order.dto.PlaceOrderRequest;
 import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderItem;
@@ -13,15 +14,20 @@ import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.order.repository.OrderRepository;
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
+import com.joonoh.sushiorder.domain.auditlog.entity.AuditAction;
+import com.joonoh.sushiorder.global.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,9 +38,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class OrderService {
 
+    private static final String STAFF_ORDER_TOPIC = "/topic/staff/orders";
+
     private final OrderRepository orderRepository;
     private final MenuRepository menuRepository;
     private final RestaurantTableRepository restaurantTableRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * 주문 접수 (손님 → PENDING 상태로 저장)
@@ -44,6 +53,7 @@ public class OrderService {
      * 이 시점에는 재고 차감 안 함. 직원이 confirm()해야 실제로 차감.
      * 같은 idempotencyKey로 재요청이 들어오면 기존 주문 그대로 반환.
      */
+    @Audit(action = AuditAction.ORDER_PLACED, entityType = "ORDER", tableIdArgIndex = 0)
     @Transactional
     public OrderResponse placeOrder(Long tableId, Long sessionId, PlaceOrderRequest request) {
         // 1. Idempotency 체크 — 중복 요청이면 기존 주문 반환
@@ -86,7 +96,9 @@ public class OrderService {
         log.info("새 주문 생성 — orderId={}, tableId={}, total={}",
                 saved.getId(), saved.getTableId(), saved.getTotalPrice());
 
-        return toResponse(saved);
+        OrderResponse response = toResponse(saved);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
@@ -94,11 +106,12 @@ public class OrderService {
      *
      * 재고 차감 시 Menu @Version 낙관적 락 충돌 → OptimisticLockingFailureException → 재시도.
      */
-    @Transactional
+    @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER")
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50, multiplier = 1.5)
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)
     )
     public OrderResponse confirmOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
@@ -106,7 +119,9 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("주문 확정 — orderId={}", orderId);
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     @Recover
@@ -119,6 +134,9 @@ public class OrderService {
             if (order.getStatus() == OrderStatus.PENDING) {
                 order.cancel();
                 log.info("재시도 실패 후 주문 자동 취소 — orderId={}", orderId);
+                try {
+                    messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, toResponse(order));
+                } catch (Exception ignored) {}
             }
         });
 
@@ -135,9 +153,10 @@ public class OrderService {
             try {
                 order.cancelItemsByStation(stationId);
                 log.info("재시도 실패 후 station 메뉴 자동 취소 — orderId={}, stationId={}", orderId, stationId);
+                messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, toResponse(order));
             } catch (IllegalStateException ignore) {
                 // 취소할 PENDING/CONFIRMED 메뉴가 이미 없는 경우 — 무시
-            }
+            } catch (Exception ignored) {}
         });
 
         throw new IllegalStateException("주문 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -146,17 +165,21 @@ public class OrderService {
     /**
      * 주문 완료 (서빙됨)
      */
+    @Audit(action = AuditAction.ORDER_COMPLETED, entityType = "ORDER")
     @Transactional
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
         order.complete();
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
      * 주문 전체 취소 — 취소 가능한(PENDING/CONFIRMED) 메뉴만 취소되고,
      * 이미 서빙 완료된 메뉴는 그대로 남는다. CONFIRMED였던 메뉴는 재고 복구.
      */
+    @Audit(action = AuditAction.ORDER_CANCELLED, entityType = "ORDER")
     @Transactional
     public OrderResponse cancelOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
@@ -164,18 +187,21 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("주문 취소 — orderId={}, 재고 복구 {}건", orderId, needStockRestore.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
      * station별 부분 접수 — 해당 station이 담당하는 메뉴 중 PENDING인 것만 CONFIRMED로 전환하고 재고 차감.
      * 다른 station 메뉴는 영향받지 않는다.
      */
-    @Transactional
+    @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER", stationIdArgIndex = 1)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50, multiplier = 1.5)
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)
     )
     public OrderResponse confirmOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);
@@ -183,23 +209,29 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("station별 주문 접수 — orderId={}, stationId={}, {}건", orderId, stationId, confirmedItems.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /** station별 부분 완료 — 해당 station이 담당하는 메뉴 중 CONFIRMED인 것만 COMPLETED로 전환 */
+    @Audit(action = AuditAction.ORDER_COMPLETED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional
     public OrderResponse completeOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);
         List<OrderItem> completedItems = order.completeItemsByStation(stationId);
 
         log.info("station별 주문 완료 — orderId={}, stationId={}, {}건", orderId, stationId, completedItems.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
      * station별 부분 취소 (ex. 재료 소진) — 해당 station이 담당하는 메뉴 중 아직 완료/취소되지 않은 것만 취소.
      * 다른 station 메뉴는 그대로 진행되고, 취소된 메뉴 금액은 주문 총액에서 제외된다.
      */
+    @Audit(action = AuditAction.ORDER_CANCELLED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional
     public OrderResponse cancelOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);
@@ -207,7 +239,9 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("station별 주문 취소 — orderId={}, stationId={}, 재고 복구 {}건", orderId, stationId, needStockRestore.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     private void deductStock(List<OrderItem> items) {
@@ -262,6 +296,10 @@ public class OrderService {
     private OrderResponse toResponse(Order order) {
         RestaurantTable table = restaurantTableRepository.findById(order.getTableId()).orElse(null);
         return OrderResponse.from(order, table);
+    }
+
+    public OrderStatsResponse getStats(LocalDate date) {
+        return orderRepository.fetchDailyStats(date);
     }
 
     /** N+1 방지 — 주문들의 tableId를 모아 한 번에 조회 후 매핑 */

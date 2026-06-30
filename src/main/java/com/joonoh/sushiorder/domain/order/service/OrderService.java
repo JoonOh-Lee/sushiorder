@@ -18,6 +18,7 @@ import com.joonoh.sushiorder.global.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -35,9 +36,12 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class OrderService {
 
+    private static final String STAFF_ORDER_TOPIC = "/topic/staff/orders";
+
     private final OrderRepository orderRepository;
     private final MenuRepository menuRepository;
     private final RestaurantTableRepository restaurantTableRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * 주문 접수 (손님 → PENDING 상태로 저장)
@@ -90,7 +94,9 @@ public class OrderService {
         log.info("새 주문 생성 — orderId={}, tableId={}, total={}",
                 saved.getId(), saved.getTableId(), saved.getTotalPrice());
 
-        return toResponse(saved);
+        OrderResponse response = toResponse(saved);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
@@ -111,7 +117,9 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("주문 확정 — orderId={}", orderId);
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     @Recover
@@ -124,6 +132,9 @@ public class OrderService {
             if (order.getStatus() == OrderStatus.PENDING) {
                 order.cancel();
                 log.info("재시도 실패 후 주문 자동 취소 — orderId={}", orderId);
+                try {
+                    messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, toResponse(order));
+                } catch (Exception ignored) {}
             }
         });
 
@@ -140,9 +151,10 @@ public class OrderService {
             try {
                 order.cancelItemsByStation(stationId);
                 log.info("재시도 실패 후 station 메뉴 자동 취소 — orderId={}, stationId={}", orderId, stationId);
+                messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, toResponse(order));
             } catch (IllegalStateException ignore) {
                 // 취소할 PENDING/CONFIRMED 메뉴가 이미 없는 경우 — 무시
-            }
+            } catch (Exception ignored) {}
         });
 
         throw new IllegalStateException("주문 처리에 실패했습니다. 잠시 후 다시 시도해주세요.");
@@ -156,7 +168,9 @@ public class OrderService {
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
         order.complete();
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
@@ -171,7 +185,9 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("주문 취소 — orderId={}, 재고 복구 {}건", orderId, needStockRestore.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
@@ -191,7 +207,9 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("station별 주문 접수 — orderId={}, stationId={}, {}건", orderId, stationId, confirmedItems.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /** station별 부분 완료 — 해당 station이 담당하는 메뉴 중 CONFIRMED인 것만 COMPLETED로 전환 */
@@ -202,7 +220,9 @@ public class OrderService {
         List<OrderItem> completedItems = order.completeItemsByStation(stationId);
 
         log.info("station별 주문 완료 — orderId={}, stationId={}, {}건", orderId, stationId, completedItems.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     /**
@@ -217,7 +237,9 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("station별 주문 취소 — orderId={}, stationId={}, 재고 복구 {}건", orderId, stationId, needStockRestore.size());
-        return toResponse(order);
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     private void deductStock(List<OrderItem> items) {

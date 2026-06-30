@@ -101,8 +101,8 @@ public class OrderService {
     @Transactional
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50, multiplier = 1.5)
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)
     )
     public OrderResponse confirmOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
@@ -181,8 +181,8 @@ public class OrderService {
     @Transactional
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50, multiplier = 1.5)
+            maxAttempts = 10,
+            backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)
     )
     public OrderResponse confirmOrderItemsByStation(Long orderId, Long stationId) {
         Order order = findOrderOrThrow(orderId);

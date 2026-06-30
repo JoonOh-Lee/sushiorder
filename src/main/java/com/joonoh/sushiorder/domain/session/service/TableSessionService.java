@@ -1,5 +1,6 @@
 package com.joonoh.sushiorder.domain.session.service;
 
+import com.joonoh.sushiorder.domain.auditlog.entity.AuditAction;
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
 import com.joonoh.sushiorder.domain.restauranttable.exception.RestaurantTableNotFoundException;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
@@ -8,6 +9,7 @@ import com.joonoh.sushiorder.domain.session.entity.SessionStatus;
 import com.joonoh.sushiorder.domain.session.entity.TableSession;
 import com.joonoh.sushiorder.domain.session.exception.TableSessionNotFoundException;
 import com.joonoh.sushiorder.domain.session.repository.TableSessionRepository;
+import com.joonoh.sushiorder.global.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class TableSessionService {
      * QR 스캔 → 세션 시작.
      * 같은 테이블에 활성 세션이 있으면 막고, 테이블도 OCCUPIED로 전환한다.
      */
+    @Audit(action = AuditAction.TABLE_OCCUPIED, entityType = "SESSION")
     @Transactional
     public TableSessionResponse createSession(Long tableId) {
         tableSessionRepository.findByTableIdAndStatus(tableId, SessionStatus.ACTIVE)
@@ -54,6 +57,7 @@ public class TableSessionService {
     }
 
     /** 직원 → 테이블 정리/퇴실 처리 */
+    @Audit(action = AuditAction.TABLE_RELEASED, entityType = "SESSION")
     @Transactional
     public TableSessionResponse closeSession(Long sessionId) {
         TableSession session = findSessionOrThrow(sessionId);

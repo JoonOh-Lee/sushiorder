@@ -13,6 +13,8 @@ import com.joonoh.sushiorder.domain.order.exception.OrderNotFoundException;
 import com.joonoh.sushiorder.domain.order.repository.OrderRepository;
 import com.joonoh.sushiorder.domain.restauranttable.entity.RestaurantTable;
 import com.joonoh.sushiorder.domain.restauranttable.repository.RestaurantTableRepository;
+import com.joonoh.sushiorder.domain.auditlog.entity.AuditAction;
+import com.joonoh.sushiorder.global.audit.Audit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -44,6 +46,7 @@ public class OrderService {
      * 이 시점에는 재고 차감 안 함. 직원이 confirm()해야 실제로 차감.
      * 같은 idempotencyKey로 재요청이 들어오면 기존 주문 그대로 반환.
      */
+    @Audit(action = AuditAction.ORDER_PLACED, entityType = "ORDER")
     @Transactional
     public OrderResponse placeOrder(Long tableId, Long sessionId, PlaceOrderRequest request) {
         // 1. Idempotency 체크 — 중복 요청이면 기존 주문 반환
@@ -94,6 +97,7 @@ public class OrderService {
      *
      * 재고 차감 시 Menu @Version 낙관적 락 충돌 → OptimisticLockingFailureException → 재시도.
      */
+    @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER")
     @Transactional
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
@@ -146,6 +150,7 @@ public class OrderService {
     /**
      * 주문 완료 (서빙됨)
      */
+    @Audit(action = AuditAction.ORDER_COMPLETED, entityType = "ORDER")
     @Transactional
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
@@ -157,6 +162,7 @@ public class OrderService {
      * 주문 전체 취소 — 취소 가능한(PENDING/CONFIRMED) 메뉴만 취소되고,
      * 이미 서빙 완료된 메뉴는 그대로 남는다. CONFIRMED였던 메뉴는 재고 복구.
      */
+    @Audit(action = AuditAction.ORDER_CANCELLED, entityType = "ORDER")
     @Transactional
     public OrderResponse cancelOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);

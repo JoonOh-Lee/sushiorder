@@ -1061,16 +1061,68 @@
           }
         },
         {
+          "name": "Get Audit Logs (result 필터 - 실패만)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?result=FAILURE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "result", "value": "FAILURE", "description": "SUCCESS | FAILURE" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (tableId 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?tableId={{tableId}}&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "tableId", "value": "{{tableId}}", "description": "특정 테이블에서 발생한 모든 이벤트 조회" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Audit Logs (actorName 필터)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/audit-log?actorName=admin&page=0&size=20",
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?actorName=관리자&page=0&size=20",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v1", "admin", "audit-log"],
               "query": [
-                { "key": "actorName", "value": "admin", "description": "직원 username으로 필터링. 손님 행동 조회 시 이 파라미터를 제거하세요." },
+                { "key": "actorName", "value": "관리자", "description": "직원 username으로 필터링. 손님 행동 조회 시 이 파라미터를 제거하세요." },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (로그인 실패만)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?action=STAFF_LOGIN&result=FAILURE&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "action", "value": "STAFF_LOGIN" },
+                { "key": "result", "value": "FAILURE" },
                 { "key": "page", "value": "0" },
                 { "key": "size", "value": "20" }
               ]

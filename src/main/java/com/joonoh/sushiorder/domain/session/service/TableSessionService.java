@@ -34,7 +34,7 @@ public class TableSessionService {
      * QR 스캔 → 세션 시작.
      * 같은 테이블에 활성 세션이 있으면 막고, 테이블도 OCCUPIED로 전환한다.
      */
-    @Audit(action = AuditAction.TABLE_OCCUPIED, entityType = "SESSION")
+    @Audit(action = AuditAction.TABLE_OCCUPIED, entityType = "SESSION", tableIdArgIndex = 0)
     @Transactional
     public TableSessionResponse createSession(Long tableId) {
         tableSessionRepository.findByTableIdAndStatus(tableId, SessionStatus.ACTIVE)

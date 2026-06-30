@@ -1022,6 +1022,62 @@
           }
         }
       ]
+    },
+    {
+      "name": "Admin Audit Log",
+      "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminJwt}}" }] },
+      "item": [
+        {
+          "name": "Get Audit Logs (전체)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (action 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?action=ORDER_CONFIRMED&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "action", "value": "ORDER_CONFIRMED", "description": "ORDER_PLACED | ORDER_CONFIRMED | ORDER_COMPLETED | ORDER_CANCELLED | TABLE_OCCUPIED | TABLE_RELEASED | STAFF_LOGIN" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs (actorName 필터)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/audit-log?actorName=admin&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "audit-log"],
+              "query": [
+                { "key": "actorName", "value": "admin", "description": "직원 username으로 필터링. 손님 행동 조회 시 이 파라미터를 제거하세요." },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }

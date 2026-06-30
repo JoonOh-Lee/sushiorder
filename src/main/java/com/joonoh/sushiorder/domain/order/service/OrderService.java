@@ -5,6 +5,7 @@ import com.joonoh.sushiorder.domain.menu.exception.MenuNotFoundException;
 import com.joonoh.sushiorder.domain.menu.repository.MenuRepository;
 import com.joonoh.sushiorder.domain.order.dto.OrderItemRequest;
 import com.joonoh.sushiorder.domain.order.dto.OrderResponse;
+import com.joonoh.sushiorder.domain.order.dto.OrderStatsResponse;
 import com.joonoh.sushiorder.domain.order.dto.PlaceOrderRequest;
 import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderItem;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -294,6 +296,10 @@ public class OrderService {
     private OrderResponse toResponse(Order order) {
         RestaurantTable table = restaurantTableRepository.findById(order.getTableId()).orElse(null);
         return OrderResponse.from(order, table);
+    }
+
+    public OrderStatsResponse getStats(LocalDate date) {
+        return orderRepository.fetchDailyStats(date);
     }
 
     /** N+1 방지 — 주문들의 tableId를 모아 한 번에 조회 후 매핑 */

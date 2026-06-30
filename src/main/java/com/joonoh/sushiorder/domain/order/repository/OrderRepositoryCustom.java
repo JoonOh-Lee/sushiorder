@@ -1,9 +1,11 @@
 package com.joonoh.sushiorder.domain.order.repository;
 
 import com.joonoh.sushiorder.domain.order.dto.OrderSearchCondition;
+import com.joonoh.sushiorder.domain.order.dto.OrderStatsResponse;
 import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderRepositoryCustom {
@@ -21,4 +23,7 @@ public interface OrderRepositoryCustom {
 
     /** 동적 조건 검색 (관리자용) */
     List<Order> searchOrders(OrderSearchCondition condition);
+
+    /** 일별 통계 — 주문수, 매출합계, 인기 메뉴 TOP5, 시간대별 분포 */
+    OrderStatsResponse fetchDailyStats(LocalDate date);
 }

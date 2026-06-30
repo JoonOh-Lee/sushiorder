@@ -50,6 +50,7 @@ jobs:
           spring.sql.init.mode=always
           spring.sql.init.encoding=UTF-8
           spring.jpa.defer-datasource-initialization=true
+          spring.datasource.hikari.maximum-pool-size=20
 
           jwt.secret=ci-only-secret-do-not-use-in-prod-please-replace-me-1234567890
           jwt.expiration-ms=43200000

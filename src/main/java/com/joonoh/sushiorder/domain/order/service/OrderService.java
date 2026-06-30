@@ -22,6 +22,7 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -98,7 +99,7 @@ public class OrderService {
      * 재고 차감 시 Menu @Version 낙관적 락 충돌 → OptimisticLockingFailureException → 재시도.
      */
     @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER")
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 10,
@@ -178,7 +179,7 @@ public class OrderService {
      * 다른 station 메뉴는 영향받지 않는다.
      */
     @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER", stationIdArgIndex = 1)
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 10,

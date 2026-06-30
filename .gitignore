@@ -38,5 +38,6 @@ out/
 
 ### Secrets / local config ###
 CLAUDE.md
+BackToFrontPrompt.md
 src/main/resources/application.properties
 src/main/resources/application-prod.properties

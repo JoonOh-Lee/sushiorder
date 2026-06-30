@@ -9,8 +9,8 @@ import com.joonoh.sushiorder.global.audit.AuditEntry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -21,10 +21,11 @@ public class AuditLogService {
     private final AuditLogRepository auditLogRepository;
 
     /**
-     * 감사 로그 저장. REQUIRES_NEW로 비즈니스 트랜잭션과 분리 — 저장 실패가 원래 작업을 롤백시키지 않는다.
-     * AuditAspect에서 try/catch로 한 번 더 보호하고 있어 예외는 절대 바깥으로 나가지 않는다.
+     * 감사 로그 비동기 저장. 비즈니스 스레드를 블로킹하지 않아 동시성 테스트의 커넥션 풀 경합을 방지한다.
+     * @Async 메서드는 항상 별도 스레드에서 실행되므로 REQUIRES_NEW 대신 기본 @Transactional로 충분.
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @Transactional
     public void record(AuditEntry entry) {
         auditLogRepository.save(AuditLog.builder()
                 .actorName(entry.getActorName())

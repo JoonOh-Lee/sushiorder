@@ -1,15 +1,23 @@
 package com.joonoh.sushiorder.domain.order.repository;
 
 import com.joonoh.sushiorder.domain.order.dto.OrderSearchCondition;
+import com.joonoh.sushiorder.domain.order.dto.OrderStatsResponse;
 import com.joonoh.sushiorder.domain.order.entity.Order;
 import com.joonoh.sushiorder.domain.order.entity.OrderStatus;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.joonoh.sushiorder.domain.order.entity.QOrder.order;
 import static com.joonoh.sushiorder.domain.order.entity.QOrderItem.orderItem;
@@ -107,5 +115,86 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     private BooleanExpression createdBefore(LocalDateTime to) {
         return to != null ? order.createdAt.loe(to) : null;
+    }
+
+    @Override
+    public OrderStatsResponse fetchDailyStats(LocalDate date) {
+        LocalDateTime from = date.atStartOfDay();
+        LocalDateTime to = date.plusDays(1).atStartOfDay();
+
+        // 1. 총 주문수 + 매출 (CANCELLED 제외)
+        var countExpr = order.count();
+        var revenueExpr = order.totalPrice.longValue().sum();
+        Tuple summary = queryFactory
+                .select(countExpr, revenueExpr)
+                .from(order)
+                .where(
+                        order.createdAt.goe(from),
+                        order.createdAt.lt(to),
+                        order.status.ne(OrderStatus.CANCELLED)
+                )
+                .fetchOne();
+
+        long totalOrders = Optional.ofNullable(summary).map(t -> t.get(countExpr)).orElse(0L);
+        long totalRevenue = Optional.ofNullable(summary)
+                .map(t -> t.get(revenueExpr))
+                .orElse(0L);
+
+        // 2. 인기 메뉴 TOP 5 (CONFIRMED + COMPLETED 기준, 수량 합산 내림차순)
+        NumberExpression<Long> qtySumExpr = orderItem.quantity.longValue().sum();
+        NumberExpression<Long> revSumExpr = orderItem.unitPrice.multiply(orderItem.quantity).longValue().sum();
+        List<Tuple> menuTuples = queryFactory
+                .select(orderItem.menuId, orderItem.menuName, qtySumExpr, revSumExpr)
+                .from(orderItem)
+                .join(orderItem.order, order)
+                .where(
+                        order.createdAt.goe(from),
+                        order.createdAt.lt(to),
+                        order.status.in(OrderStatus.CONFIRMED, OrderStatus.COMPLETED)
+                )
+                .groupBy(orderItem.menuId, orderItem.menuName)
+                .orderBy(qtySumExpr.desc())
+                .limit(5)
+                .fetch();
+
+        List<OrderStatsResponse.MenuStat> topMenus = menuTuples.stream()
+                .map(t -> new OrderStatsResponse.MenuStat(
+                        t.get(orderItem.menuId),
+                        t.get(orderItem.menuName),
+                        Optional.ofNullable(t.get(qtySumExpr)).orElse(0L),
+                        Optional.ofNullable(t.get(revSumExpr)).orElse(0L)
+                ))
+                .toList();
+
+        // 3. 시간대별 분포 (0-23시, 없는 시간대는 0으로 채움)
+        var hourExpr = order.createdAt.hour();
+        var hourCountExpr = order.count();
+        Map<Integer, Long> hourlyMap = queryFactory
+                .select(hourExpr, hourCountExpr)
+                .from(order)
+                .where(
+                        order.createdAt.goe(from),
+                        order.createdAt.lt(to),
+                        order.status.ne(OrderStatus.CANCELLED)
+                )
+                .groupBy(hourExpr)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        t -> t.get(hourExpr),
+                        t -> t.get(hourCountExpr)
+                ));
+
+        List<OrderStatsResponse.HourlyStat> hourlyDistribution = IntStream.range(0, 24)
+                .mapToObj(h -> new OrderStatsResponse.HourlyStat(h, hourlyMap.getOrDefault(h, 0L)))
+                .toList();
+
+        return OrderStatsResponse.builder()
+                .date(date)
+                .totalOrders(totalOrders)
+                .totalRevenue(totalRevenue)
+                .topMenus(topMenus)
+                .hourlyDistribution(hourlyDistribution)
+                .build();
     }
 }

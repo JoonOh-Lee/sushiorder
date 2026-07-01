@@ -50,7 +50,7 @@ public class AdminMenuController {
 
     @PatchMapping("/{id}/stock")
     public ApiResponse<Void> setStock(@PathVariable Long id,
-                                      @RequestBody StockSetRequest request) {
+                                      @Valid @RequestBody StockSetRequest request) {
         menuService.setStockCount(id, request.getStockCount());
         return ApiResponse.success();
     }

@@ -38,6 +38,9 @@ public class RestaurantTable extends BaseTimeEntity {
     private Double width;
     private Double height;
 
+    @Version
+    private Long version;
+
     @Builder
     private RestaurantTable(SeatType seatType, int tableNumber, int seatCount) {
         if (seatType == null) {

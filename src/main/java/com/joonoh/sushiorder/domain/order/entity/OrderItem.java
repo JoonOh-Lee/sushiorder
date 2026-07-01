@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "order_item")
+@Table(name = "order_item", indexes = {
+        // station 대시보드가 findByStatusInAndStationId로 (station_id, status) 조합으로 서브쿼리를 던진다
+        @Index(name = "idx_order_item_station_id_status", columnList = "station_id, status")
+})
 public class OrderItem extends BaseTimeEntity {
 
     @Id

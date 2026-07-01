@@ -10,7 +10,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "staff_call")
+@Table(name = "staff_call", indexes = {
+        // 같은 테이블 중복 호출 차단(existsByTableIdAndStatus) — 손님이 호출 누를 때마다 체크
+        @Index(name = "idx_staff_call_table_id_status", columnList = "table_id, status"),
+        // 직원 대시보드 findByStatusOrderByCreatedAtAsc
+        @Index(name = "idx_staff_call_status_created_at", columnList = "status, created_at")
+})
 public class StaffCall extends BaseTimeEntity {
 
     @Id

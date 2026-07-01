@@ -22,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         // 2순위: Rate Limiting — /api/v1/order는 위에서 심은 SESSION_ID_ATTRIBUTE를 읽으므로 반드시 이후에 실행
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/v1/order", "/api/v1/session", "/api/v1/auth/login");
+                .addPathPatterns("/api/v1/order", "/api/v1/session", "/api/v1/auth/login",
+                        "/api/v1/admin/**", "/api/v1/staff/**");
     }
 }

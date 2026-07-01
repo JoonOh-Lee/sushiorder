@@ -14,7 +14,12 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "audit_log")
+@Table(name = "audit_log", indexes = {
+        // search()가 항상 createdAt desc로 정렬 + action/tableId를 optional 필터로 씀
+        @Index(name = "idx_audit_log_created_at", columnList = "created_at"),
+        @Index(name = "idx_audit_log_table_id", columnList = "table_id"),
+        @Index(name = "idx_audit_log_action", columnList = "action")
+})
 public class AuditLog {
 
     @Id

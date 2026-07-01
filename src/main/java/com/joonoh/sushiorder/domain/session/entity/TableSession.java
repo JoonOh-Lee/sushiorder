@@ -14,7 +14,12 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "table_session")
+@Table(name = "table_session", indexes = {
+        // 중복 세션 생성 방지 체크(findByTableIdAndStatus) — QR 스캔마다 호출되는 hot path
+        @Index(name = "idx_table_session_table_id_status", columnList = "table_id, status"),
+        // 만료 스케줄러의 findAllByStatusAndExpiresAtBefore
+        @Index(name = "idx_table_session_status_expires_at", columnList = "status, expires_at")
+})
 public class TableSession extends BaseTimeEntity {
 
     @Id

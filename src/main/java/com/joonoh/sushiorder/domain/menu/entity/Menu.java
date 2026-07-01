@@ -8,7 +8,11 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "menu")
+@Table(name = "menu", indexes = {
+        // 손님 메뉴 탭(카테고리별 판매중 메뉴)과 searchMenus의 category+activeOnly 조합
+        @Index(name = "idx_menu_category_is_active", columnList = "category, is_active"),
+        @Index(name = "idx_menu_station_id", columnList = "station_id")
+})
 public class Menu extends BaseTimeEntity {
 
     @Id

@@ -16,3 +16,7 @@ jwt.expiration-ms=43200000
 
 # QR 코드에 담길 프론트엔드 URL (테이블 QR 스캔 시 이동할 주소)
 app.frontend-url=http://localhost:5173
+
+# CORS 허용 출처 (콤마 구분, 공백 허용) — REST(SecurityConfig)와 WebSocket(WebSocketConfig) 둘 다 이 값을 쓴다.
+# 생략하면 아래와 동일한 로컬 개발 서버 기본값이 적용된다.
+app.cors.allowed-origins=http://localhost:3000,http://localhost:5173,http://172.31.99.96:5173

@@ -14,7 +14,12 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "orders") // 'order'는 SQL 예약어라 복수형 사용
+@Table(name = "orders", indexes = { // 'order'는 SQL 예약어라 복수형 사용
+        @Index(name = "idx_orders_table_id", columnList = "table_id"),
+        @Index(name = "idx_orders_session_id", columnList = "session_id"),
+        @Index(name = "idx_orders_status", columnList = "status"),
+        @Index(name = "idx_orders_created_at", columnList = "created_at")
+})
 public class Order extends BaseTimeEntity {
 
     @Id

@@ -16,7 +16,7 @@ public class Station extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, length = 30)
+    @Column(nullable = false, length = 30, unique = true)
     private String name;
     @Column(name ="sort_order", nullable = false)
     private int sortOrder;

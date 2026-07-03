@@ -1,7 +1,7 @@
 -- ============================================
 -- 1. 자리(Station) 시드
 -- ============================================
-INSERT INTO station (name, sort_order, is_active, created_at, updated_at) VALUES
+INSERT IGNORE INTO station (name, sort_order, is_active, created_at, updated_at) VALUES
                                                                               ('아부리다이', 0, true, NOW(), NOW()),
                                                                               ('육회다이', 1, true, NOW(), NOW()),
                                                                               ('참치다이', 2, true, NOW(), NOW()),

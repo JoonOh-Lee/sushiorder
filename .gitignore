@@ -42,3 +42,11 @@ BackToFrontPrompt.md
 src/main/resources/application.properties
 src/main/resources/application-prod.properties
 .aider*
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.jks
+k8s/secret.yaml

@@ -24,7 +24,15 @@ spec:
             - name: SPRING_DATASOURCE_USERNAME
               value: root
             - name: SPRING_DATASOURCE_PASSWORD
-              value: "1234"
+              valueFrom:
+                secretKeyRef:
+                  name: sushiorder-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sushiorder-secrets
+                  key: jwt-secret
 ---
 apiVersion: v1
 kind: Service

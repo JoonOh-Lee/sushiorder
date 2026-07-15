@@ -21,7 +21,10 @@ spec:
             - name: MARIADB_DATABASE
               value: sushiorder
             - name: MARIADB_ROOT_PASSWORD
-              value: "1234"
+              valueFrom:
+                secretKeyRef:
+                  name: sushiorder-secrets
+                  key: db-password
             - name: MARIADB_ROOT_HOST
               value: "%"
 ---

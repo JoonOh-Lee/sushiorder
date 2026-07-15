@@ -262,7 +262,7 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
 -- ============================================
 INSERT INTO staff (username, password, role, station_id, active, created_at, updated_at) VALUES
     ('관리자', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),
-    ('이준오', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),
+    ('김초밥', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),
     ('아부리', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',
      (SELECT id FROM station WHERE name = '아부리다이'), true, NOW(), NOW()),
     ('육회', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'STAFF',

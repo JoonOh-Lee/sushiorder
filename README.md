@@ -13,31 +13,28 @@
 ## 아키텍처
 
 ```
-[고객 QR 주문 (React)]
+[고객 QR 주문 (React, 별도 저장소)]
         │ REST API
         ▼
 [Spring Boot 3 API 서버]
         │
-        ├─ 주문 저장 (MariaDB) ─── DB Outbox (큐 유실 대비 폴백)
+        ├─ 주문 저장 (MariaDB) ── 상태 변경의 단일 진실 공급원(source of truth)
         │
         ▼
-[비동기 주문 전달 파이프라인]
-  In-Memory Queue → KDS 전달
-        │
-        ├─ 전달 실패 시 → DelayQueue 기반 재시도
-        └─ 재시도 초과 시 → Dead Letter Queue (운영자 확인용)
+[STOMP WebSocket 브로드캐스트] → /topic/staff/orders → KDS/직원 화면 실시간 반영
 ```
 
 ### 설계에서 신경 쓴 부분
 
-**1. 주문 유실 방지 — "주문은 절대 사라지면 안 된다"**
+**1. 주문 정합성 — "주문 상태는 DB와 항상 일치해야 한다"**
 
-주문 접수와 KDS 전달을 비동기 큐로 분리하되, 큐는 메모리 기반이라 서버 재시작 시 유실될 수 있습니다. 이를 막기 위해:
+주문 접수/확정/완료/취소는 모두 하나의 트랜잭션 안에서 **DB에 먼저 반영**된 뒤, 같은 흐름에서 STOMP로 KDS/직원 화면에 브로드캐스트됩니다. DB가 상태의 단일 진실 공급원이라, 화면이 새로고침되거나 WebSocket이 재연결돼도 REST 조회로 항상 최신 상태를 다시 받아올 수 있습니다.
 
-- 주문은 항상 **DB에 먼저 저장**(Outbox 역할)한 뒤 큐에 적재
-- 서버 기동 시 미전달 주문을 DB에서 복구해 재적재
-- KDS 전달 실패 시 **DelayQueue 기반 재시도**, 반복 실패 시 **Dead Letter Queue**로 이동해 운영자가 확인할 수 있도록 처리
-- 서버 종료 시 처리 중인 주문이 유실되지 않도록 **Graceful Shutdown** 적용
+- **중복 주문 방지**: 클라이언트가 보낸 `idempotencyKey`로 같은 요청이 중복 도착해도 기존 주문을 그대로 반환 (`OrderService.placeOrder`)
+- **동시 접수/재고 충돌 처리**: 재고 차감 시 `Menu` 엔티티에 `@Version` 낙관적 락을 걸고, 충돌 시 `@Retryable`(최대 10회, 랜덤 backoff)로 자동 재시도 — 그래도 실패하면 `@Recover`가 해당 주문(또는 station 담당분)을 자동 취소 처리 후 브로드캐스트
+- **감사 로그**: 주문 접수/확정/완료/취소 전 과정을 AOP 기반 `AuditLog`로 기록해 사후 추적 가능
+
+> 인메모리 큐·DelayQueue 기반 재시도·Dead Letter Queue·서버 재기동 시 미전달 주문 복구 같은 별도의 비동기 전달 계층은 **아직 구현돼 있지 않습니다.** 현재는 DB 커밋 후 동기적으로 WebSocket을 브로드캐스트하는 구조이며, 향후 개선 과제로 남겨두고 있습니다.
 
 **2. QR 주문 보안 — 테이블 단위 세션 격리**
 
@@ -54,38 +51,49 @@ QR URL만 알면 아무나 다른 테이블로 주문할 수 있는 문제를 �
 
 | 구분 | 기술 |
 |---|---|
-| Backend | Java 17, Spring Boot 3, Spring Data JPA |
+| Backend | Java 21, Spring Boot 3, Spring Data JPA |
 | Database | MariaDB |
-| Frontend | React, Vite |
+| Frontend | React, Vite (별도 저장소 — 이 레포에는 백엔드만 포함) |
 | Infra | Docker, Kubernetes, nginx Ingress |
 
 ## 실행 방법
 
+이 저장소는 **백엔드(API 서버)만** 포함합니다. 프론트엔드 없이도 Swagger UI와 Postman으로 전체 API를 확인할 수 있습니다.
+
 ```bash
 # 1. 저장소 클론
-git clone https://github.com/{TODO: 계정명}/sushiorder.git
+git clone https://github.com/JoonOh-Lee/sushiorder.git
+cd sushiorder
 
-# 2. Docker Compose로 로컬 실행
-{TODO: 실제 실행 커맨드 확인 후 기재}
+# 2. 로컬 설정 파일 준비 (최초 1회만)
+cp src/main/resources/application.properties.example src/main/resources/application.properties
+cp .env.example .env
+# 기본값(DB_PASSWORD=1234, JWT_SECRET=changeme-...) 그대로도 로컬 실행은 가능합니다.
+# 운영 배포 시에는 반드시 실제 값으로 교체하세요 (application-prod.properties.example 참고).
 
-# 3. 접속
-# 고객 주문:   http://localhost:{PORT}/order
-# 주방(KDS):  http://localhost:{PORT}/kds
-# 관리자:     http://localhost:{PORT}/admin
-{TODO: 실제 경로 확인 후 수정}
+# 3. Docker Compose로 로컬 실행
+docker compose up --build
+
+# 4. 접속
+# REST API 베이스:  http://localhost:8080/api/v1
+# Swagger UI:       http://localhost:8080/swagger-ui/index.html
+# 데모 로그인:       POST /api/v1/auth/login  { "username": "admin", "password": "admin1234" }
+# Postman 컬렉션:    postman/sushiorder.postman_collection.json (+ *_environment.json) import
 ```
+
+Kubernetes로 띄우려면 `k8s/secret.example.yaml`을 복사해 `k8s/secret.yaml`(gitignore됨)에 실제 값을 채운 뒤 `kubectl apply -f k8s/secret.yaml -f k8s/db-deployment.yaml -f k8s/api-deployment.yaml -f k8s/ingress.yaml` 순서로 적용하세요.
 
 ## 화면
 
-{TODO: 스크린샷 2~3장 추가 — 고객 주문 화면 / KDS 화면 권장}
+아래 경로에 이미지 파일을 추가하면 자동으로 표시됩니다.
 
 | 고객 주문 | 주방 디스플레이(KDS) |
 |---|---|
-| (스크린샷) | (스크린샷) |
+| ![고객 주문 화면](docs/screenshot-order.png) | ![KDS 화면](docs/screenshot-kds.png) |
 
 ---
 
 ## 만들면서 배운 것
 
-- **"동작하는 기능"과 "장애 상황에도 데이터가 어긋나지 않는 기능"의 차이.** 정상 흐름 구현보다 실패 시나리오(큐 유실, 전달 실패, 서버 재시작)를 설계하는 데 더 많은 시간을 썼습니다.
+- **"동작하는 기능"과 "장애 상황에도 데이터가 어긋나지 않는 기능"의 차이.** 정상 흐름 구현보다 실패 시나리오(동시 주문/재고 충돌, 중복 요청, 재시도 한계 초과 시 자동 취소)를 설계하는 데 더 많은 시간을 썼습니다.
 - 실무(SI)에서 다루지 못한 Spring Boot 3, JPA, Kubernetes를 학습에서 끝내지 않고 실제 동작하는 서비스로 검증했습니다.

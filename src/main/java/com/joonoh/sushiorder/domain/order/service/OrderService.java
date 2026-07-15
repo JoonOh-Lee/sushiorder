@@ -96,9 +96,7 @@ public class OrderService {
         log.info("새 주문 생성 — orderId={}, tableId={}, total={}",
                 saved.getId(), saved.getTableId(), saved.getTotalPrice());
 
-        OrderResponse response = toResponse(saved);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(saved);
     }
 
     /**
@@ -119,9 +117,7 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("주문 확정 — orderId={}", orderId);
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     @Recover
@@ -170,9 +166,7 @@ public class OrderService {
     public OrderResponse completeOrder(Long orderId) {
         Order order = findOrderOrThrow(orderId);
         order.complete();
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     /**
@@ -187,9 +181,7 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("주문 취소 — orderId={}, 재고 복구 {}건", orderId, needStockRestore.size());
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     /**
@@ -209,9 +201,7 @@ public class OrderService {
         deductStock(confirmedItems);
 
         log.info("station별 주문 접수 — orderId={}, stationId={}, {}건", orderId, stationId, confirmedItems.size());
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     /** station별 부분 완료 — 해당 station이 담당하는 메뉴 중 CONFIRMED인 것만 COMPLETED로 전환 */
@@ -222,9 +212,7 @@ public class OrderService {
         List<OrderItem> completedItems = order.completeItemsByStation(stationId);
 
         log.info("station별 주문 완료 — orderId={}, stationId={}, {}건", orderId, stationId, completedItems.size());
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     /**
@@ -239,9 +227,7 @@ public class OrderService {
         restoreStock(needStockRestore);
 
         log.info("station별 주문 취소 — orderId={}, stationId={}, 재고 복구 {}건", orderId, stationId, needStockRestore.size());
-        OrderResponse response = toResponse(order);
-        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
-        return response;
+        return broadcastAndReturn(order);
     }
 
     private void deductStock(List<OrderItem> items) {
@@ -258,6 +244,13 @@ public class OrderService {
                     .orElseThrow(() -> new MenuNotFoundException(item.getMenuId()));
             menu.restoreStock(item.getQuantity());
         }
+    }
+
+    /** 상태 변경 후 응답 DTO로 변환 + 직원 대시보드로 브로드캐스트하는 공통 마무리 단계 */
+    private OrderResponse broadcastAndReturn(Order order) {
+        OrderResponse response = toResponse(order);
+        messagingTemplate.convertAndSend(STAFF_ORDER_TOPIC, response);
+        return response;
     }
 
     // ===== 조회 메서드 =====

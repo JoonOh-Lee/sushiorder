@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sushiorder-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sushiorder-db
+  template:
+    metadata:
+      labels:
+        app: sushiorder-db
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:12.2.2
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MARIADB_DATABASE
+              value: sushiorder
+            - name: MARIADB_ROOT_PASSWORD
+              value: "1234"
+            - name: MARIADB_ROOT_HOST
+              value: "%"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sushiorder-db
+spec:
+  selector:
+    app: sushiorder-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP

@@ -88,7 +88,7 @@ docker compose up --build
 # 4. 접속
 # REST API 베이스:  http://localhost:8080/api/v1
 # Swagger UI:       http://localhost:8080/swagger-ui/index.html
-# 데모 로그인:       POST /api/v1/auth/login  { "username": "admin", "password": "admin1234" }
+# 데모 로그인:       POST /api/v1/auth/login  { "username": "관리자", "password": "1234" }
 # Postman 컬렉션:    postman/sushiorder.postman_collection.json (+ *_environment.json) import
 ```
 

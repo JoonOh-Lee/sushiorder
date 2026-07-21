@@ -257,8 +257,8 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
 
 -- ============================================
 -- 3. 직원(Staff) 시드 — 로컬 개발용 계정
---    admin / admin1234 (ROLE_ADMIN, station 없음)
---    station별 직원 5명 / staff1234 (ROLE_STAFF) — station은 출근 후 본인이 재배정 가능
+--    관리자, 김초밥 / 1234 (ROLE_ADMIN, station 없음)
+--    station별 직원 5명 / 1234 (ROLE_STAFF) — station은 출근 후 본인이 재배정 가능
 -- ============================================
 INSERT INTO staff (username, password, role, station_id, active, created_at, updated_at) VALUES
     ('관리자', '$2a$10$QXAHIml4Vn9d5kD3p8mHUuSJ36lHBMylmgQyFsWw8pfHVfyV5xNLa', 'ADMIN', NULL, true, NOW(), NOW()),

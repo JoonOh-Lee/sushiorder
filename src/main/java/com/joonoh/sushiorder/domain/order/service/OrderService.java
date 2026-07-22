@@ -107,6 +107,7 @@ public class OrderService {
     @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER")
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
+            recover = "recoverFromConcurrencyFailure",
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 10,
             backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)
@@ -191,6 +192,7 @@ public class OrderService {
     @Audit(action = AuditAction.ORDER_CONFIRMED, entityType = "ORDER", stationIdArgIndex = 1)
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Retryable(
+            recover = "recoverFromStationConfirmFailure",
             retryFor = OptimisticLockingFailureException.class,
             maxAttempts = 10,
             backoff = @Backoff(delay = 30, multiplier = 1.5, maxDelay = 300, random = true)

@@ -11,10 +11,9 @@ INSERT IGNORE INTO station (name, sort_order, is_active, created_at, updated_at)
 
 -- ============================================
 -- 2. 메뉴(Menu) 시드
---    회전초밥집 메뉴판을 참고한 샘플 데이터
---    구이/튀김/디저트/우동 보드) 기준. 레일 초밥은 1접시 1,990원, 프리미엄은
---    1접시 3,980원 — 보드에 가격이 없는 뒷주방 메뉴(구운초밥/사이드/디저트)는
---    유사 메뉴 시세를 참고한 추정가이니 실제 운영 가격으로 추후 보정 필요.
+--    일본식 회전초밥집 메뉴판을 참고한 샘플 데이터. 레일 초밥은 1접시 1,990원,
+--    프리미엄은 1접시 3,980원 — 가격이 정해지지 않은 뒷주방 메뉴(구운초밥/사이드/
+--    디저트)는 유사 메뉴 시세를 참고한 추정가이니 실제 운영 가격으로 추후 보정 필요.
 -- ============================================
 
 -- 프리미엄초밥 (PREMIUM_SUSHI) — 1접시 3,980원, 일부 일일 한정 수량
@@ -220,39 +219,39 @@ INSERT INTO menu (name, description, price, category, image_url, ingredients, al
 
 -- 포장 (TAKEOUT) — 회전초밥집 포장 메뉴판을 참고한 샘플 데이터. 세트는 묶음 구성을 description에 표기.
 INSERT INTO menu (name, description, price, category, image_url, ingredients, allergy_info, stock_count, like_count, dislike_count, is_active, station_id, version, created_at, updated_at) VALUES
-    ('모둠초밥(10P)', '혼자 먹어도 든든한 모둠 10피스 — 활어2P+연어양파1P+연어2P+초새우1P+소고기직화1P+계란새우1P+구운새우1P+간장새우1P', 14900, 'TAKEOUT', '/images/menu/pojang_menu.png', '활어, 연어, 새우, 소고기, 계란, 초밥용 밥', '새우, 갑각류, 난류', NULL, 0, 0, true,
+    ('모둠초밥(10P)', '혼자 먹어도 든든한 모둠 10피스 — 활어2P+연어양파1P+연어2P+초새우1P+소고기직화1P+계란새우1P+구운새우1P+간장새우1P', 14900, 'TAKEOUT', '/images/menu/takeout.svg', '활어, 연어, 새우, 소고기, 계란, 초밥용 밥', '새우, 갑각류, 난류', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('모둠스페셜초밥(12P)', '한 단계 업그레이드한 스페셜 12피스 — 활어3P+연어양파1P+연어2P+육회타다끼1P+소고기직화1P+육회초밥1P+구운새우1P+간장새우1P+계란새우1P', 17900, 'TAKEOUT', '/images/menu/pojang_menu.png', '활어, 연어, 새우, 소고기, 육회, 계란, 초밥용 밥', '새우, 갑각류, 난류', NULL, 0, 0, true,
+    ('모둠스페셜초밥(12P)', '한 단계 업그레이드한 스페셜 12피스 — 활어3P+연어양파1P+연어2P+육회타다끼1P+소고기직화1P+육회초밥1P+구운새우1P+간장새우1P+계란새우1P', 17900, 'TAKEOUT', '/images/menu/takeout.svg', '활어, 연어, 새우, 소고기, 육회, 계란, 초밥용 밥', '새우, 갑각류, 난류', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('모둠패밀리초밥세트(29P+우동(대)+새우튀김)', '다 같이 먹기 딱 좋은 패밀리세트 — 활어6P+연어4P+연어양파2P+육회타다끼2P+소고기직화2P+육회초밥2P+구운새우2P+간장새우2P+계란새우2P+유부초밥5P+우동(대)+새우튀김', 39900, 'TAKEOUT', '/images/menu/pojang_menu.png', '활어, 연어, 새우, 소고기, 육회, 계란, 유부, 우동면, 초밥용 밥', '새우, 갑각류, 난류, 밀, 대두', NULL, 0, 0, true,
+    ('모둠패밀리초밥세트(29P+우동(대)+새우튀김)', '다 같이 먹기 딱 좋은 패밀리세트 — 활어6P+연어4P+연어양파2P+육회타다끼2P+소고기직화2P+육회초밥2P+구운새우2P+간장새우2P+계란새우2P+유부초밥5P+우동(대)+새우튀김', 39900, 'TAKEOUT', '/images/menu/takeout.svg', '활어, 연어, 새우, 소고기, 육회, 계란, 유부, 우동면, 초밥용 밥', '새우, 갑각류, 난류, 밀, 대두', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('연어초밥(10p)포장', '포장으로도 신선하게, 연어초밥 10피스', 17900, 'TAKEOUT', '/images/menu/pojang_menu.png', '연어, 초밥용 밥, 와사비', '없음', NULL, 0, 0, true,
+    ('연어초밥(10p)포장', '포장으로도 신선하게, 연어초밥 10피스', 17900, 'TAKEOUT', '/images/menu/takeout.svg', '연어, 초밥용 밥, 와사비', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('연어양파초밥(10p)포장', '양파 토핑까지 챙긴 연어양파초밥 10피스', 18900, 'TAKEOUT', '/images/menu/pojang_menu.png', '연어, 양파, 초밥용 밥, 마요네즈', '없음', NULL, 0, 0, true,
+    ('연어양파초밥(10p)포장', '양파 토핑까지 챙긴 연어양파초밥 10피스', 18900, 'TAKEOUT', '/images/menu/takeout.svg', '연어, 양파, 초밥용 밥, 마요네즈', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('광어초밥(10p)포장', '포장으로 즐기는 쫄깃한 광어초밥 10피스', 17900, 'TAKEOUT', '/images/menu/pojang_menu.png', '광어, 초밥용 밥, 와사비', '없음', NULL, 0, 0, true,
+    ('광어초밥(10p)포장', '포장으로 즐기는 쫄깃한 광어초밥 10피스', 17900, 'TAKEOUT', '/images/menu/takeout.svg', '광어, 초밥용 밥, 와사비', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('광어묵은지초밥(10p)포장', '광어와 묵은지의 색다른 조합 10피스', 18900, 'TAKEOUT', '/images/menu/pojang_menu.png', '광어, 묵은지, 초밥용 밥', '없음', NULL, 0, 0, true,
+    ('광어묵은지초밥(10p)포장', '광어와 묵은지의 색다른 조합 10피스', 18900, 'TAKEOUT', '/images/menu/takeout.svg', '광어, 묵은지, 초밥용 밥', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('소고기직화초밥(10p)포장', '불맛 가득 직화 소고기 10피스', 13900, 'TAKEOUT', '/images/menu/pojang_menu.png', '소고기, 양념(간장, 설탕, 마늘), 초밥용 밥', '대두, 밀', NULL, 0, 0, true,
+    ('소고기직화초밥(10p)포장', '불맛 가득 직화 소고기 10피스', 13900, 'TAKEOUT', '/images/menu/takeout.svg', '소고기, 양념(간장, 설탕, 마늘), 초밥용 밥', '대두, 밀', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('연어직화초밥(10p)포장', '불맛 입힌 직화 연어 10피스', 18900, 'TAKEOUT', '/images/menu/pojang_menu.png', '연어, 초밥용 밥, 간장 소스', '없음', NULL, 0, 0, true,
+    ('연어직화초밥(10p)포장', '불맛 입힌 직화 연어 10피스', 18900, 'TAKEOUT', '/images/menu/takeout.svg', '연어, 초밥용 밥, 간장 소스', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('생새우마늘직화초밥(10p)포장', '마늘향 솔솔, 직화 생새우 10피스', 14900, 'TAKEOUT', '/images/menu/pojang_menu.png', '생새우, 마늘, 초밥용 밥', '새우, 갑각류', NULL, 0, 0, true,
+    ('생새우마늘직화초밥(10p)포장', '마늘향 솔솔, 직화 생새우 10피스', 14900, 'TAKEOUT', '/images/menu/takeout.svg', '생새우, 마늘, 초밥용 밥', '새우, 갑각류', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('육회타다끼초밥(10p)포장', '겉만 살짝 익힌 소고기 타다끼 10피스', 19900, 'TAKEOUT', '/images/menu/pojang_menu.png', '소고기, 초밥용 밥, 간장 소스', '대두', NULL, 0, 0, true,
+    ('육회타다끼초밥(10p)포장', '겉만 살짝 익힌 소고기 타다끼 10피스', 19900, 'TAKEOUT', '/images/menu/takeout.svg', '소고기, 초밥용 밥, 간장 소스', '대두', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('구운새우초밥(10p)포장', '노릇하게 구운 새우 10피스', 19900, 'TAKEOUT', '/images/menu/pojang_menu.png', '새우, 초밥용 밥', '새우, 갑각류', NULL, 0, 0, true,
+    ('구운새우초밥(10p)포장', '노릇하게 구운 새우 10피스', 19900, 'TAKEOUT', '/images/menu/takeout.svg', '새우, 초밥용 밥', '새우, 갑각류', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('계란새우초밥(10p)포장', '계란과 새우 듀오, 10피스', 19900, 'TAKEOUT', '/images/menu/pojang_menu.png', '계란, 새우, 초밥용 밥', '난류, 새우, 갑각류', NULL, 0, 0, true,
+    ('계란새우초밥(10p)포장', '계란과 새우 듀오, 10피스', 19900, 'TAKEOUT', '/images/menu/takeout.svg', '계란, 새우, 초밥용 밥', '난류, 새우, 갑각류', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('육회초밥(5p)+육회타다끼(5p)포장', '육회 두 가지 맛을 한 번에, 모둠 10피스', 19900, 'TAKEOUT', '/images/menu/pojang_menu.png', '소고기, 초밥용 밥, 참기름, 마늘', '대두', NULL, 0, 0, true,
+    ('육회초밥(5p)+육회타다끼(5p)포장', '육회 두 가지 맛을 한 번에, 모둠 10피스', 19900, 'TAKEOUT', '/images/menu/takeout.svg', '소고기, 초밥용 밥, 참기름, 마늘', '대두', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('양념새우초밥(10p)포장', '특제 양념이 매력 포인트, 새우 10피스', 14900, 'TAKEOUT', '/images/menu/pojang_menu.png', '새우, 특제양념, 초밥용 밥', '새우, 갑각류, 대두', NULL, 0, 0, true,
+    ('양념새우초밥(10p)포장', '특제 양념이 매력 포인트, 새우 10피스', 14900, 'TAKEOUT', '/images/menu/takeout.svg', '새우, 특제양념, 초밥용 밥', '새우, 갑각류, 대두', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('육회초밥(10p)포장', '포장으로도 신선하게, 육회초밥 10피스', 19900, 'TAKEOUT', '/images/menu/pojang_menu.png', '소고기, 초밥용 밥, 참기름, 마늘', '없음', NULL, 0, 0, true,
+    ('육회초밥(10p)포장', '포장으로도 신선하게, 육회초밥 10피스', 19900, 'TAKEOUT', '/images/menu/takeout.svg', '소고기, 초밥용 밥, 참기름, 마늘', '없음', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW()),
-    ('간장새우초밥(10p)포장', '짭짤한 간장소스 새우 10피스', 17900, 'TAKEOUT', '/images/menu/pojang_menu.png', '새우, 간장 소스, 초밥용 밥', '새우, 갑각류, 대두, 밀', NULL, 0, 0, true,
+    ('간장새우초밥(10p)포장', '짭짤한 간장소스 새우 10피스', 17900, 'TAKEOUT', '/images/menu/takeout.svg', '새우, 간장 소스, 초밥용 밥', '새우, 갑각류, 대두, 밀', NULL, 0, 0, true,
      (SELECT id FROM station WHERE name = '아부리다이'), 0, NOW(), NOW());
 
 -- ============================================

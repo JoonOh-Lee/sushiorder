@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#EDE7F6"/>
+  <path d="M150 130 h100 l8 90 a10 10 0 0 1 -10 10 h-96 a10 10 0 0 1 -10 -10 z" fill="#FFFFFF" stroke="#7E57C2" stroke-width="3"/>
+  <path d="M170 130 v-20 a30 30 0 0 1 60 0 v20" fill="none" stroke="#7E57C2" stroke-width="6"/>
+  <text x="200" y="240" font-family="sans-serif" font-size="28" font-weight="bold" fill="#4A3178" text-anchor="middle">포장 TAKEOUT</text>
+</svg>
